@@ -23,6 +23,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:bmflutter/src/helpers/enums.dart';
+import 'package:bmflutter/src/helpers/network/network_converters.dart';
 import 'package:bmflutter/src/helpers/network/logger.dart';
 import 'package:bmflutter/src/network/target_request.dart';
 import 'package:bmflutter/src/network/request.dart';
@@ -34,6 +35,8 @@ import 'package:http/http.dart' as http;
 /// This extension provides async network operations for requests that need
 /// to decode response data into specific model types. It handles connectivity
 /// checks, request creation, response processing, and error handling.
+///
+
 extension PerformAsyncModelTargetType on ModelTargetType {
   /// Performs an async network request and returns the decoded models
   /// 
@@ -88,8 +91,9 @@ extension PerformAsyncModelTargetType on ModelTargetType {
         case HTTPStatusCode.success:
           try {
             final decodedJson = json.decode(utf8.decode(responseData));
-            return decodedJson as Response;
-          } catch (_) {
+            return NetworkConverters.convert<Response>(decodedJson);
+          } catch (error) {
+            print(error);
             throw const APIError(APIErrorType.dataConversionFailed);
           }
 
