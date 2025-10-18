@@ -4,3 +4,6 @@ linter:
   rules:
     library_names: false
     file_names: false
+analyzer:
+  enable-experiment:
+    - macros
