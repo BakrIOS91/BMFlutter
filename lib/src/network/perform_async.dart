@@ -1,37 +1,40 @@
 /// Async Network Operations for BMFlutter Network Layer
-/// 
+///
 /// This file provides async network operation extensions for both ModelTargetType
 /// and SuccessTargetType. It handles the execution of network requests with
 /// comprehensive error handling, logging, and response processing.
-/// 
+///
 /// The extensions support both data-fetching operations (ModelTargetType) and
 /// simple success/failure operations (SuccessTargetType), along with file
 /// download capabilities.
-/// 
+///
 /// Usage:
 /// ```dart
 /// // For model-based requests
 /// final user = await userRequest.performAsync<User>();
-/// 
+///
 /// // For success-only requests
 /// await deleteRequest.performAsync();
-/// 
+///
 /// // For file downloads
 /// final file = await downloadRequest.performDownload();
 /// ```
+library;
 
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:bmflutter/src/helpers/enums.dart';
-import 'package:bmflutter/src/helpers/network/network_converters.dart';
-import 'package:bmflutter/src/helpers/network/logger.dart';
-import 'package:bmflutter/src/network/target_request.dart';
-import 'package:bmflutter/src/network/request.dart';
 import 'package:bmflutter/src/helpers/models/downloaded_file.dart';
+import 'package:bmflutter/src/helpers/network/logger.dart';
+import 'package:bmflutter/src/helpers/network/network_converters.dart';
+import 'package:bmflutter/src/network/request.dart';
+import 'package:bmflutter/src/network/target_request.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 /// Extension to perform async requests for ModelTargetType
-/// 
+///
 /// This extension provides async network operations for requests that need
 /// to decode response data into specific model types. It handles connectivity
 /// checks, request creation, response processing, and error handling.
@@ -39,15 +42,15 @@ import 'package:http/http.dart' as http;
 
 extension PerformAsyncModelTargetType on ModelTargetType {
   /// Performs an async network request and returns the decoded models
-  /// 
+  ///
   /// This method executes a complete network request cycle including connectivity
   /// checks, request creation, HTTP execution, response logging, and data decoding.
   /// It automatically handles various error scenarios and provides detailed logging.
-  /// 
+  ///
   /// Generic type [Response] represents the expected response model type
-  /// 
+  ///
   /// Throws: `APIError` for various network and data conversion errors
-  /// 
+  ///
   /// Returns the decoded response data as the specified type
   Future<Response> performAsync<Response>() async {
     // Check for internet connection
@@ -93,7 +96,9 @@ extension PerformAsyncModelTargetType on ModelTargetType {
             final decodedJson = json.decode(utf8.decode(responseData));
             return NetworkConverters.convert<Response>(decodedJson);
           } catch (error) {
-            print(error);
+            if (kDebugMode) {
+              print(error);
+            }
             throw const APIError(APIErrorType.dataConversionFailed);
           }
 
@@ -112,16 +117,16 @@ extension PerformAsyncModelTargetType on ModelTargetType {
   }
 
   /// Downloads a file and returns the local file path wrapped in [DownloadedFile]
-  /// 
+  ///
   /// This method handles file download operations, including connectivity checks,
   /// request creation, file streaming, and local file storage. It creates a
   /// temporary file and streams the download data to it.
-  /// 
+  ///
   /// The method handles various download scenarios including resumable downloads
   /// and provides comprehensive logging for debugging purposes.
-  /// 
+  ///
   /// Throws: `APIError` for network and file system errors
-  /// 
+  ///
   /// Returns a DownloadedFile instance with local and remote file information
   Future<DownloadedFile?> performDownload() async {
     if (!await TargetRequest.isConnectedToInternet) {
@@ -189,22 +194,22 @@ extension PerformAsyncModelTargetType on ModelTargetType {
 }
 
 /// Extension to perform async requests for SuccessTargetType
-/// 
+///
 /// This extension provides async network operations for requests that don't
 /// need to decode response data. It's useful for operations like creating,
 /// updating, or deleting resources where you only care about success/failure.
 extension PerformAsyncSuccessTargetType on SuccessTargetType {
   /// Performs an asynchronous network request and returns void if successful or throws an error
-  /// 
+  ///
   /// This method executes a complete network request cycle for success-only operations.
   /// It handles connectivity checks, request creation, HTTP execution, and response
   /// validation without attempting to decode response data.
-  /// 
+  ///
   /// The method is optimized for operations where the response body is not needed,
   /// such as DELETE, PUT, or POST operations that only return status codes.
-  /// 
+  ///
   /// Throws: `APIError` for various network and HTTP errors
-  /// 
+  ///
   /// Returns void on successful completion
   Future<void> performAsync() async {
     // Check for internet connection

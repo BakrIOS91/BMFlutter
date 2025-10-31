@@ -1,18 +1,17 @@
-/// Network Monitor for BMFlutter Network Layer
-/// 
+///
 /// This file provides comprehensive network connectivity monitoring using
 /// the connectivity_plus package. It offers both on-demand connectivity
 /// checks and real-time connectivity status streams for reactive programming.
-/// 
+///
 /// The monitor supports multiple connection types including mobile data,
 /// Wi-Fi, and Ethernet connections. It provides a simple boolean interface
 /// for easy integration with network requests and UI state management.
-/// 
+///
 /// Usage:
 /// ```dart
 /// // Check connectivity on-demand
 /// final isOnline = await NetworkMonitor.isConnected;
-/// 
+///
 /// // Listen to connectivity changes
 /// NetworkMonitor.onConnectivityChanged.listen((isConnected) {
 ///   if (isConnected) {
@@ -22,6 +21,7 @@
 ///   }
 /// });
 /// ```
+library;
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 
@@ -43,21 +43,21 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 /// ```
 class NetworkMonitor {
   /// Private constructor to prevent instantiation
-  /// 
+  ///
   /// This class is designed to be used statically, so instantiation is not allowed.
   const NetworkMonitor._(); // Prevent instantiation
 
   /// Returns `true` if the device is connected to any available network
-  /// 
+  ///
   /// This method checks the current connectivity status and returns true if
   /// the device is connected to any of the supported network types (mobile, Wi-Fi, Ethernet).
   /// It's useful for on-demand connectivity checks before making network requests.
-  /// 
-  /// Returns a Future<bool> indicating connectivity status
+  ///
+  /// Returns a Future bool indicating connectivity status
   static Future<bool> get isConnected async {
     // Get current connectivity results
     final results = await Connectivity().checkConnectivity();
-    
+
     // Check if any supported connection type is available
     // `results` is now a List<ConnectivityResult>
     return results.contains(ConnectivityResult.mobile) ||

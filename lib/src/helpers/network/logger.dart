@@ -1,14 +1,14 @@
 /// Network Logger for BMFlutter Network Layer
-/// 
+///
 /// This file provides comprehensive logging functionality for HTTP requests
 /// and responses. It includes formatted output, JSON pretty-printing, and
 /// debug-friendly logging that can be easily enabled or disabled.
-/// 
+///
 /// The logger automatically formats request and response data for easy
 /// debugging and includes emojis and visual separators for better readability
 /// in debug output. It supports both request and response logging with
 /// detailed information about headers, parameters, and body content.
-/// 
+///
 /// Usage:
 /// ```dart
 /// Logger.logRequest(
@@ -17,29 +17,31 @@
 ///   headers: {'Content-Type': 'application/json'},
 /// );
 /// ```
+library;
 
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 
 /// Logger helper for HTTP requests and responses with formatted output
-/// 
+///
 /// This class provides static methods for logging HTTP requests and responses
 /// with detailed formatting, JSON pretty-printing, and debug-friendly output.
 /// It can be globally enabled or disabled and automatically formats data
 /// for easy debugging and monitoring.
 class Logger {
   /// Enable or disable logging globally
-  /// 
+  ///
   /// This flag controls whether logging is active. It's set to kDebugMode
   /// by default, which means logging is only enabled in debug builds.
   static bool isEnabled = kDebugMode;
 
   /// Logs an HTTP request with detailed formatting
-  /// 
+  ///
   /// This method logs all aspects of an HTTP request including method, URL,
   /// headers, parameters, and body content. The output is formatted with
   /// emojis and visual separators for easy debugging.
-  /// 
+  ///
   /// Parameters:
   /// - [method]: The HTTP method (GET, POST, etc.)
   /// - [url]: The request URL
@@ -57,7 +59,9 @@ class Logger {
     if (!isEnabled) return;
 
     // Log request header with visual separator
-    _safeLog('############################## Request ##############################');
+    _safeLog(
+      '############################## Request ##############################',
+    );
     _safeLog('📤 Will send $method request for ${url.toString()}\n');
 
     // Log headers if present
@@ -77,15 +81,17 @@ class Logger {
     }
 
     // Log request footer
-    _safeLog('############################## End Request ##############################\n');
+    _safeLog(
+      '############################## End Request ##############################\n',
+    );
   }
 
   /// Logs an HTTP response with status and data formatting
-  /// 
+  ///
   /// This method logs HTTP responses including status codes, response data,
   /// and any errors that occurred. It uses emojis to indicate success/failure
   /// and formats response data for easy debugging.
-  /// 
+  ///
   /// Parameters:
   /// - [method]: The HTTP method that was used
   /// - [url]: The request URL
@@ -103,7 +109,9 @@ class Logger {
     if (!isEnabled) return;
 
     // Log response header with visual separator
-    _safeLog('############################## Received Response ##############################');
+    _safeLog(
+      '############################## Received Response ##############################',
+    );
 
     // Log error if present
     if (error != null) {
@@ -114,8 +122,10 @@ class Logger {
     if (statusCode != null) {
       // Choose emoji based on status code success
       final statusEmoji = (statusCode >= 200 && statusCode < 300) ? '✅' : '⚠️';
-      _safeLog('$statusEmoji Did receive response $statusCode for request $url');
-      
+      _safeLog(
+        '$statusEmoji Did receive response $statusCode for request $url',
+      );
+
       // Log response body if present
       if (responseData != null && responseData.isNotEmpty) {
         _safeLog('\nBody:\n${_prettyPrintBody(responseData)}');
@@ -125,15 +135,17 @@ class Logger {
     }
 
     // Log response footer
-    _safeLog('############################## End Response ##############################\n');
+    _safeLog(
+      '############################## End Response ##############################\n',
+    );
   }
 
   /// Internal safe log function with controlled output
-  /// 
+  ///
   /// This method provides a safe way to log messages with proper formatting
   /// and width control. It only logs when logging is enabled and uses
   /// Flutter's debugPrint with a controlled wrap width for better readability.
-  /// 
+  ///
   /// Parameters:
   /// - [message]: The message to log
   static void _safeLog(String message) {
@@ -141,14 +153,14 @@ class Logger {
   }
 
   /// Pretty prints JSON parameters with proper indentation
-  /// 
+  ///
   /// This method formats JSON data with proper indentation for better
   /// readability in debug output. It handles conversion errors gracefully
   /// by falling back to string representation.
-  /// 
+  ///
   /// Parameters:
   /// - [json]: The JSON data to format
-  /// 
+  ///
   /// Returns a formatted JSON string or fallback representation
   static String _prettyPrintJson(Map<String, dynamic> json) {
     try {
@@ -162,20 +174,20 @@ class Logger {
   }
 
   /// Pretty prints request/response body with JSON formatting
-  /// 
+  ///
   /// This method attempts to decode and format response body data as JSON.
   /// If the data is not valid JSON, it falls back to UTF-8 string decoding.
   /// This ensures that both JSON and plain text responses are properly formatted.
-  /// 
+  ///
   /// Parameters:
   /// - [body]: The response body as bytes
-  /// 
+  ///
   /// Returns a formatted string representation of the body
   static String _prettyPrintBody(Uint8List body) {
     try {
       // Decode bytes to UTF-8 string
       final decoded = utf8.decode(body);
-      
+
       // Try to parse as JSON and format it
       final jsonMap = json.decode(decoded);
       return _prettyPrintJson(jsonMap);
