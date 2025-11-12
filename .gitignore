@@ -275,3 +275,4 @@ example/pubspec.lock
 
 # Analysis
 analysis_options.yaml.bak
+.idea/caches/*

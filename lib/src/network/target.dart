@@ -9,20 +9,6 @@
 /// base URL configuration while allowing for environment-specific customization.
 /// It supports different schemes, hosts, ports, and API paths for various
 /// deployment scenarios.
-///
-/// Usage:
-/// ```dart
-/// class ProductionTarget extends Target {
-///   @override
-///   AppEnvironment get appEnvironment => AppEnvironment.production;
-///
-///   @override
-///   String get kAppHost => 'api.example.com';
-///
-///   @override
-///   String get kAppScheme => 'https';
-/// }
-/// ```
 library;
 
 import 'package:bmflutter/src/helpers/enums.dart';
@@ -37,71 +23,55 @@ import 'package:bmflutter/src/helpers/enums.dart';
 /// that can be easily switched between development, staging, and production.
 abstract class Target {
   /// The current environment of the app
-  ///
-  /// This property identifies which environment the app is running in,
-  /// allowing for environment-specific configurations and behaviors.
   AppEnvironment get appEnvironment;
 
-  /// The host for the app
-  ///
-  /// This property defines the hostname or IP address of the API server
-  /// that the app will connect to for network requests.
+  /// The host for the app (e.g., 'api.example.com')
   String get kAppHost;
 
-  /// Optional main API path
+  /// Optional main API path (e.g., 'v1')
   ///
-  /// This property defines an optional base path that will be prepended
-  /// to all API endpoints. If null or empty, no base path is used.
-  ///
-  /// Returns the API base path or null if not specified
+  /// Represents the version or root path of the API (if any).
   String? get kMainAPIPath => null;
 
-  /// The scheme used by the app, e.g., 'https' or 'http'
+  /// Optional API sub-path (e.g., 'api')
   ///
-  /// This property defines the protocol scheme for network requests.
-  /// Typically 'https' for production and 'http' for development.
+  /// Represents a prefix path that comes before the main API path.
+  /// Example: if `kAppApiPath` = 'api' and `kMainAPIPath` = 'v1',
+  /// the final URL becomes: `https://example.com/api/v1/`
+  String? get kAppApiPath => null;
+
+  /// The scheme used by the app, e.g., 'https' or 'http'
   String get kAppScheme;
 
-  /// Optional port for the app
-  ///
-  /// This property defines an optional port number for the API server.
-  /// If null, the default port for the scheme will be used.
-  ///
-  /// Returns the port number or null for default
+  /// Optional port number for the API server
   int? get kAppPort => null;
 
-  /// The base URL components for the app's network requests
-  ///
-  /// This computed property constructs a Uri object from the individual
-  /// components (scheme, host, port, path). It handles the optional API path
-  /// and ensures proper URL construction for network requests.
-  ///
-  /// Returns a Uri object with all base URL components
-  ///
-  String get sanitizedHost {
-    // Remove any trailing or leading slashes accidentally added by subclasses
-    return kAppHost.replaceAll(RegExp(r'^/+|/+$'), '');
-  }
+  /// Sanitized host (removes extra slashes)
+  String get sanitizedHost => kAppHost.replaceAll(RegExp(r'^/+|/+$'), '');
 
+  /// Constructs the full base URL components
   Uri get kBaseURLComponents {
-    final path = (kMainAPIPath != null && kMainAPIPath!.isNotEmpty)
-        ? '/${kMainAPIPath!.replaceAll(RegExp(r'^/+'), '')}'
+    // Combine optional API and main paths safely
+    final pathSegments = <String>[];
+    if (kAppApiPath != null && kAppApiPath!.isNotEmpty) {
+      pathSegments.add(kAppApiPath!.replaceAll(RegExp(r'^/+|/+$'), ''));
+    }
+    if (kMainAPIPath != null && kMainAPIPath!.isNotEmpty) {
+      pathSegments.add(kMainAPIPath!.replaceAll(RegExp(r'^/+|/+$'), ''));
+    }
+
+    final combinedPath = pathSegments.isNotEmpty
+        ? '/${pathSegments.join('/')}'
         : '/';
 
     return Uri(
       scheme: kAppScheme,
       host: sanitizedHost,
       port: kAppPort,
-      path: path,
+      path: combinedPath,
     );
   }
 
-  /// The full base URL as a string
-  ///
-  /// This computed property provides the complete base URL as a string,
-  /// constructed from the individual components. It's useful for logging
-  /// and debugging purposes.
-  ///
-  /// Returns the complete base URL string
+  /// Returns the complete base URL as a string
   String get kBaseURL => kBaseURLComponents.toString();
 }

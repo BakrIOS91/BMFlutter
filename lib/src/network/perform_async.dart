@@ -75,7 +75,7 @@ extension PerformAsyncModelTargetType on ModelTargetType {
       try {
         streamedResponse = await client.send(request);
       } on SocketException {
-        throw const APIError(APIErrorType.noNetwork);
+        throw const APIError(APIErrorType.httpError);
       }
 
       final responseData = await streamedResponse.stream.toBytes();
