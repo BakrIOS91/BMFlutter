@@ -9,6 +9,7 @@ class ErrorView extends StatelessWidget {
   final String? buttonTitle;
   final VoidCallback? retryAction;
   final Image image;
+  final Widget? retryButton;
 
   const ErrorView({
     super.key,
@@ -19,6 +20,7 @@ class ErrorView extends StatelessWidget {
     this.buttonTitle,
     this.retryAction,
     required this.image,
+    this.retryButton,
   });
 
   @override
@@ -43,13 +45,11 @@ class ErrorView extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
               ),
-              if (buttonTitle != null && retryAction != null) ...[
+              if (buttonTitle != null &&
+                  retryAction != null &&
+                  retryButton != null) ...[
                 _sizedBox(context, 20),
-                AppCupertinoButton.filled(
-                  context: context,
-                  title: buttonTitle ?? "",
-                  onPressed: retryAction,
-                ),
+                retryButton ?? Center(),
               ],
             ],
           ),
