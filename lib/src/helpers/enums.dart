@@ -377,6 +377,7 @@ sealed class ViewState {
   static const serverError = ServerError();
   static const unexpectedError = UnexpectedError();
   static const unauthorized = Unauthorized();
+  static const forceUpdate = ForceUpdateError();
 }
 
 // Non-error states
@@ -439,6 +440,12 @@ final class CustomState extends ViewState {
 
 final class SearchError extends ViewState {
   const SearchError();
+  @override
+  bool get isError => true;
+}
+
+final class ForceUpdateError extends ViewState {
+  const ForceUpdateError();
   @override
   bool get isError => true;
 }
