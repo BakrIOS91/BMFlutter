@@ -4,6 +4,7 @@ export 'src/design/typography/font_helper.dart';
 // Helpers
 export 'src/helpers/device_helper.dart';
 export 'src/helpers/enums.dart';
+export 'src/helpers/language_manager.dart';
 export 'src/helpers/models/custom_error.dart';
 export 'src/helpers/models/downloaded_file.dart';
 export 'src/helpers/network/base_client.dart';

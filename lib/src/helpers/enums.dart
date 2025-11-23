@@ -442,3 +442,92 @@ final class SearchError extends ViewState {
   @override
   bool get isError => true;
 }
+
+/// Enum for supported locales with their string representations.
+enum SupportedLocale {
+  // Arabic
+  ar("ar"),
+  ar_AE("ar-AE"), // Arabic (United Arab Emirates)
+  ar_BH("ar-BH"), // Arabic (Bahrain)
+  ar_DZ("ar-DZ"), // Arabic (Algeria)
+  ar_EG("ar-EG"), // Arabic (Egypt)
+  ar_IQ("ar-IQ"), // Arabic (Iraq)
+  ar_JO("ar-JO"), // Arabic (Jordan)
+  ar_KW("ar-KW"), // Arabic (Kuwait)
+  ar_LB("ar-LB"), // Arabic (Lebanon)
+  ar_LY("ar-LY"), // Arabic (Libya)
+  ar_MA("ar-MA"), // Arabic (Morocco)
+  ar_OM("ar-OM"), // Arabic (Oman)
+  ar_QA("ar-QA"), // Arabic (Qatar)
+  ar_SA("ar-SA"), // Arabic (Saudi Arabia)
+  ar_SD("ar-SD"), // Arabic (Sudan)
+  ar_SY("ar-SY"), // Arabic (Syria)
+  ar_TN("ar-TN"), // Arabic (Tunisia)
+  ar_YE("ar-YE"), // Arabic (Yemen)
+
+  // English
+  en("en"),
+  en_AU("en-AU"), // English (Australia)
+  en_CA("en-CA"), // English (Canada)
+  en_GB("en-GB"), // English (United Kingdom)
+  en_US("en-US"), // English (United States)
+
+  // German
+  de("de"),
+  de_DE("de-DE"), // German (Germany)
+  de_AT("de-AT"), // German (Austria)
+  de_CH("de-CH"), // German (Switzerland)
+
+  // Spanish
+  es("es"),
+  es_ES("es-ES"), // Spanish (Spain)
+  es_MX("es-MX"), // Spanish (Mexico)
+
+  // French
+  fr("fr"),
+  fr_CA("fr-CA"), // French (Canada)
+  fr_FR("fr-FR"), // French (France)
+
+  // Other languages
+  ca_ES("ca-ES"), // Catalan (Spain)
+  cs_CZ("cs-CZ"), // Czech (Czech Republic)
+  da_DK("da-DK"), // Danish (Denmark)
+  el_GR("el-GR"), // Greek (Greece)
+  fi_FI("fi-FI"), // Finnish (Finland)
+  hi_IN("hi-IN"), // Hindi (India)
+  hr_HR("hr-HR"), // Croatian (Croatia)
+  hu_HU("hu-HU"), // Hungarian (Hungary)
+  id_ID("id-ID"), // Indonesian (Indonesia)
+  it_IT("it-IT"), // Italian (Italy)
+  ja_JP("ja-JP"), // Japanese (Japan)
+  ko_KR("ko-KR"), // Korean (South Korea)
+  ms_MY("ms-MY"), // Malay (Malaysia)
+  nb_NO("nb-NO"), // Norwegian Bokmål (Norway)
+  nl_NL("nl-NL"), // Dutch (Netherlands)
+  pl_PL("pl-PL"), // Polish (Poland)
+  pt_BR("pt-BR"), // Portuguese (Brazil)
+  pt_PT("pt-PT"), // Portuguese (Portugal)
+  ro_RO("ro-RO"), // Romanian (Romania)
+  ru_RU("ru-RU"), // Russian (Russia)
+  sk_SK("sk-SK"), // Slovak (Slovakia)
+  sv_SE("sv-SE"), // Swedish (Sweden)
+  th_TH("th-TH"), // Thai (Thailand)
+  tr_TR("tr-TR"), // Turkish (Turkey)
+  uk_UA("uk-UA"), // Ukrainian (Ukraine)
+  vi_VN("vi-VN"), // Vietnamese (Vietnam)
+  zh_CN("zh-CN"), // Chinese (China)
+  zh_HK("zh-HK"), // Chinese (Hong Kong)
+  zh_TW("zh-TW"); // Chinese (Taiwan)
+
+  const SupportedLocale(this.rawValue);
+  final String rawValue;
+
+  /// Returns the `Locale` object corresponding to the supported locale.
+  Locale get locale {
+    final parts = rawValue.split('-');
+    if (parts.length == 2) {
+      return Locale(parts[0], parts[1]);
+    }
+    return Locale(parts[0]);
+  }
+}
