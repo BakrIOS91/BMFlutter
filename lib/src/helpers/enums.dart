@@ -46,6 +46,36 @@ enum AppEnvironment {
   production,
 }
 
+extension AppEnvironmentEnv on AppEnvironment {
+  static AppEnvironment fromString(String value) {
+    switch (value.toLowerCase()) {
+      case 'development':
+      case 'dev':
+        return AppEnvironment.development;
+
+      case 'testing':
+      case 'test':
+        return AppEnvironment.testing;
+
+      case 'staging':
+        return AppEnvironment.staging;
+
+      case 'preproduction':
+      case 'pre_production':
+      case 'pre-production':
+      case 'preprod':
+        return AppEnvironment.preProduction;
+
+      case 'production':
+      case 'prod':
+        return AppEnvironment.production;
+
+      default:
+        return AppEnvironment.development;
+    }
+  }
+}
+
 /// Represents the type of network request protocol
 ///
 /// This enum defines the supported network request types, allowing the
