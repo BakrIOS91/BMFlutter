@@ -53,33 +53,41 @@ class Logger {
     required Uri url,
     Map<String, String>? headers,
     Map<String, dynamic>? parameters,
-    dynamic body,
+    dynamic body, // <-- dynamic to handle string, map, list, Uint8List
   }) {
+    // Early return if logging is disabled
     if (!isEnabled) return;
 
+    // Log request header with visual separator
     _safeLog(
       '############################## Request ##############################',
     );
     _safeLog('📤 Will send $method request for $url\n');
 
+    // Log headers if present
     if (headers != null && headers.isNotEmpty) {
       _safeLog('🏷 Headers:');
-      headers.forEach((k, v) => _safeLog('$k : $v'));
+      headers.forEach((key, value) => _safeLog('$key : $value'));
     }
 
+    // Log URL parameters if present
     if (parameters != null && parameters.isNotEmpty) {
       _safeLog('\nParameters: ${_prettyPrintJson(parameters)}\n');
     }
 
-    // Handle dynamic body
+    // Log body if present
     if (body != null) {
       String bodyStr = '';
       if (body is String) {
         try {
           final decoded = json.decode(body);
-          bodyStr = _prettyPrintJson(decoded);
+          if (decoded is Map || decoded is List) {
+            bodyStr = _prettyPrintJson(decoded);
+          } else {
+            bodyStr = body; // not a Map/List, just print string
+          }
         } catch (_) {
-          bodyStr = body; // not JSON, keep string
+          bodyStr = body; // invalid JSON, just print string
         }
       } else if (body is Map || body is List) {
         bodyStr = _prettyPrintJson(body);
@@ -90,8 +98,11 @@ class Logger {
       }
 
       _safeLog('\nBody: $bodyStr\n');
+    } else {
+      _safeLog('\nBody: Empty\n');
     }
 
+    // Log request footer
     _safeLog(
       '############################## End Request ##############################\n',
     );
