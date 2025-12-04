@@ -53,34 +53,45 @@ class Logger {
     required Uri url,
     Map<String, String>? headers,
     Map<String, dynamic>? parameters,
-    Uint8List? body,
+    dynamic body,
   }) {
-    // Early return if logging is disabled
     if (!isEnabled) return;
 
-    // Log request header with visual separator
     _safeLog(
       '############################## Request ##############################',
     );
-    _safeLog('📤 Will send $method request for ${url.toString()}\n');
+    _safeLog('📤 Will send $method request for $url\n');
 
-    // Log headers if present
     if (headers != null && headers.isNotEmpty) {
       _safeLog('🏷 Headers:');
-      headers.forEach((key, value) => _safeLog('$key : $value'));
+      headers.forEach((k, v) => _safeLog('$k : $v'));
     }
 
-    // Log parameters if present
     if (parameters != null && parameters.isNotEmpty) {
       _safeLog('\nParameters: ${_prettyPrintJson(parameters)}\n');
     }
 
-    // Log body if present
-    if (body != null && body.isNotEmpty) {
-      _safeLog('\nBody: ${_prettyPrintBody(body)}\n');
+    // Handle dynamic body
+    if (body != null) {
+      String bodyStr = '';
+      if (body is String) {
+        try {
+          final decoded = json.decode(body);
+          bodyStr = _prettyPrintJson(decoded);
+        } catch (_) {
+          bodyStr = body; // not JSON, keep string
+        }
+      } else if (body is Map || body is List) {
+        bodyStr = _prettyPrintJson(body);
+      } else if (body is Uint8List) {
+        bodyStr = _prettyPrintBody(body);
+      } else {
+        bodyStr = body.toString();
+      }
+
+      _safeLog('\nBody: $bodyStr\n');
     }
 
-    // Log request footer
     _safeLog(
       '############################## End Request ##############################\n',
     );
