@@ -185,14 +185,10 @@ class Logger {
   /// Returns a formatted string representation of the body
   static String _prettyPrintBody(Uint8List body) {
     try {
-      // Decode bytes to UTF-8 string
       final decoded = utf8.decode(body);
-
-      // Try to parse as JSON and format it
-      final jsonMap = json.decode(decoded);
-      return _prettyPrintJson(jsonMap);
+      final jsonBody = json.decode(decoded); // could be Map or List
+      return _prettyPrintJson(jsonBody);
     } catch (_) {
-      // Fallback to UTF-8 decoding with malformed character handling
       return utf8.decode(body, allowMalformed: true);
     }
   }
