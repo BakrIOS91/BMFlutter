@@ -3,6 +3,15 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+abstract class SecureStorable {
+  Map<String, dynamic> toJson();
+
+  /// Optional: Every model should implement a static fromJson constructor
+  static T fromJson<T extends SecureStorable>(Map<String, dynamic> json) {
+    throw UnimplementedError('fromJson must be implemented in $T');
+  }
+}
+
 class SecureStorageService {
   SecureStorageService._internal();
   static final SecureStorageService instance = SecureStorageService._internal();
@@ -28,33 +37,26 @@ class SecureStorageService {
   }
 
   /// Save any JSON-serializable object (String, Map, List, Model)
-  Future<void> writeModel<T>(
-    String key,
-    T model, {
-    Map<String, dynamic> Function(T model)? toJson,
-  }) async {
-    final valueToStore = toJson != null ? toJson(model) : model;
-    final encoded = _encode(valueToStore);
+  Future<void> writeModel<T extends SecureStorable>(String key, T model) async {
+    final encoded = _encode(model.toJson());
     await _storage.write(key: key, value: encoded);
     _values.value = {..._values.value, key: model};
   }
 
   /// Read and decode
-  Future<T?> readModel<T>(
-    String key, {
-    required T Function(Map<String, dynamic> json) fromJson,
-  }) async {
+  Future<T?> readModel<T extends SecureStorable>(
+    String key,
+    T Function(Map<String, dynamic>) fromJson,
+  ) async {
     final raw = await _storage.read(key: key);
     if (raw == null) return null;
 
-    final decoded = _decode(raw);
-    if (decoded is Map<String, dynamic>) {
-      final value = fromJson(decoded);
-      _values.value = {..._values.value, key: value};
-      return value;
-    }
+    final decoded = _decode(raw) as Map<String, dynamic>;
+    final model = fromJson(decoded);
 
-    return null;
+    // Update the reactive ValueNotifier
+    _values.value = {..._values.value, key: model};
+    return model;
   }
 
   /// Delete key
