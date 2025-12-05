@@ -28,19 +28,33 @@ class SecureStorageService {
   }
 
   /// Save any JSON-serializable object (String, Map, List, Model)
-  Future<void> write<T>(String key, T value) async {
-    final encoded = _encode(value);
+  Future<void> writeModel<T>(
+    String key,
+    T model, {
+    Map<String, dynamic> Function(T model)? toJson,
+  }) async {
+    final valueToStore = toJson != null ? toJson(model) : model;
+    final encoded = _encode(valueToStore);
     await _storage.write(key: key, value: encoded);
-    _values.value = {..._values.value, key: value};
+    _values.value = {..._values.value, key: model};
   }
 
   /// Read and decode
-  Future<T?> read<T>(String key) async {
+  Future<T?> readModel<T>(
+    String key, {
+    required T Function(Map<String, dynamic> json) fromJson,
+  }) async {
     final raw = await _storage.read(key: key);
     if (raw == null) return null;
+
     final decoded = _decode(raw);
-    _values.value = {..._values.value, key: decoded};
-    return decoded as T;
+    if (decoded is Map<String, dynamic>) {
+      final value = fromJson(decoded);
+      _values.value = {..._values.value, key: value};
+      return value;
+    }
+
+    return null;
   }
 
   /// Delete key
