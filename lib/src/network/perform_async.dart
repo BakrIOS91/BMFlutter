@@ -62,12 +62,6 @@ extension PerformAsyncModelTargetType on ModelTargetType {
     final request = await createRequest();
 
     try {
-      Logger.logRequest(
-        method: request.method,
-        url: request.url,
-        headers: request.headers,
-      );
-
       // Prepare client (use SSL pinning later if implemented)
       final client = http.Client();
       http.StreamedResponse streamedResponse;

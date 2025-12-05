@@ -19,8 +19,7 @@ library;
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:bmflutter/src/helpers/enums.dart';
-import 'package:bmflutter/src/network/target_request.dart';
+import 'package:bmflutter/core.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
@@ -88,8 +87,9 @@ extension Request on TargetRequest {
         final params = requestTask.parameters;
         if (params != null) {
           final uri = request.url.replace(queryParameters: params);
-          return http.Request(request.method, uri)
+          final newReq = http.Request(request.method, uri)
             ..headers.addAll(request.headers);
+          return newReq;
         }
         return request;
 
@@ -98,12 +98,20 @@ extension Request on TargetRequest {
         if (body != null) {
           try {
             final requestBody = jsonEncode(body);
+
             request.body = requestBody;
             request.headers['Content-Length'] = utf8
                 .encode(requestBody)
                 .length
                 .toString();
             request.headers['Content-Type'] = 'application/json';
+
+            Logger.logRequest(
+              method: request.method,
+              url: request.url,
+              headers: request.headers,
+              body: requestBody,
+            );
           } catch (_) {
             throw const APIError(APIErrorType.dataConversionFailed);
           }
@@ -115,11 +123,21 @@ extension Request on TargetRequest {
         if (filePath != null) {
           final file = File(filePath);
           if (await file.exists()) {
-            request.bodyBytes = await file.readAsBytes();
+            final bytes = await file.readAsBytes();
+            request.bodyBytes = bytes;
+            request.headers['Content-Length'] = bytes.length.toString();
+
+            Logger.logRequest(
+              method: request.method,
+              url: request.url,
+              headers: request.headers,
+              body: bytes,
+            );
           } else {
             throw const APIError(APIErrorType.invalidURL);
           }
         }
+
         return request;
 
       case RequestTaskType.uploadMultipart:
@@ -132,25 +150,31 @@ extension Request on TargetRequest {
           multipartRequest.headers.addAll(request.headers);
 
           for (final entry in fields.entries) {
-            final fieldName = entry.key;
-            final formData = entry.value;
-
-            if (formData is MultipartFormDataData) {
+            if (entry.value is MultipartFormDataData) {
+              final data = entry.value as MultipartFormDataData;
               final multipartFile = http.MultipartFile.fromBytes(
-                fieldName,
-                formData.data,
-                filename: formData.fileName,
-                contentType: MediaType.parse(formData.mimeType),
+                entry.key,
+                data.data,
+                filename: data.fileName,
+                contentType: MediaType.parse(data.mimeType),
               );
               multipartRequest.files.add(multipartFile);
-            } else if (formData is MultipartFormDataText) {
-              multipartRequest.fields[fieldName] = formData.value.toString();
-            } else {
-              throw const APIError(APIErrorType.dataConversionFailed);
+            } else if (entry.value is MultipartFormDataText) {
+              final text = entry.value as MultipartFormDataText;
+              multipartRequest.fields[entry.key] = text.value.toString();
             }
           }
+
+          Logger.logRequest(
+            method: request.method,
+            url: request.url,
+            headers: request.headers,
+            body: multipartRequest.fields,
+          );
+
           return multipartRequest;
         }
+
         return request;
 
       case RequestTaskType.downloadResumable:
@@ -158,6 +182,14 @@ extension Request on TargetRequest {
         if (offset != null) {
           request.headers['Range'] = 'bytes=$offset-';
         }
+
+        Logger.logRequest(
+          method: request.method,
+          url: request.url,
+          headers: request.headers,
+          body: request.body,
+        );
+
         return request;
     }
   }
