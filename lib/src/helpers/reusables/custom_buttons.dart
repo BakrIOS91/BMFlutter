@@ -12,7 +12,7 @@ class AppCupertinoButton {
     Color? backgroundColor,
     double height = 50,
     double horizontalPadding = 20,
-    double? width, // 👈 added
+    double? width,
   }) {
     final double scale = DeviceHelper.getScalingFactor(context);
 
@@ -52,7 +52,7 @@ class AppCupertinoButton {
       child: CupertinoButton(
         padding: EdgeInsets.symmetric(horizontal: horizontalPadding * scale),
         color:
-            backgroundColor?.withOpacity(backgroundOpacity) ??
+            backgroundColor?.withValues(alpha: backgroundOpacity) ??
             Colors.transparent,
         borderRadius: BorderRadius.circular(borderRadius * scale),
         onPressed: onPressed,
