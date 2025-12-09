@@ -88,7 +88,7 @@ class AppCupertinoButton {
             width: borderWidth * scale,
           ),
           borderRadius: BorderRadius.circular(borderRadius * scale),
-          color: backgroundColor?.withOpacity(backgroundOpacity),
+          color: backgroundColor?.withValues(alpha: backgroundOpacity),
         ),
         padding: EdgeInsets.symmetric(horizontal: horizontalPadding * scale),
         child: _buildContent(
@@ -146,11 +146,13 @@ class AppCupertinoButton {
 
     final children = <Widget>[];
 
-    if (iconPosition == Position.leading && iconWidget != null)
+    if (iconPosition == Position.leading && iconWidget != null) {
       children.add(iconWidget);
+    }
     children.add(textWidget);
-    if (iconPosition == Position.trailing && iconWidget != null)
+    if (iconPosition == Position.trailing && iconWidget != null) {
       children.add(iconWidget);
+    }
 
     return Row(
       mainAxisAlignment: _mapPositionToAlignment(labelPosition),
@@ -172,7 +174,6 @@ class AppCupertinoButton {
       case Position.trailing:
         return MainAxisAlignment.end;
       case Position.center:
-      default:
         return MainAxisAlignment.center;
     }
   }
