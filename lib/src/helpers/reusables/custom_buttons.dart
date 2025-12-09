@@ -2,10 +2,11 @@ import 'package:bmflutter/core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-enum IconPosition { leading, center, trailing }
+/// Position for both label & icon
+enum Position { leading, center, trailing }
 
 class AppCupertinoButton {
-  /// Filled iOS button (like primary action buttons in iOS)
+  /// Filled iOS button (Primary actions)
   static Widget filled({
     required BuildContext context,
     required String title,
@@ -16,14 +17,14 @@ class AppCupertinoButton {
     double horizontalPadding = 20,
     double? width,
 
-    // New:
+    // New customization:
     IconData? icon,
     Color? iconColor,
     double iconSize = 22,
-    IconPosition iconPosition = IconPosition.leading,
-    MainAxisAlignment labelAlignment = MainAxisAlignment.center,
+    Position iconPosition = Position.leading,
+    Position labelPosition = Position.center,
   }) {
-    final double scale = DeviceHelper.getScalingFactor(context);
+    final scale = DeviceHelper.getScalingFactor(context);
 
     return SizedBox(
       width: width != null ? width * scale : double.infinity,
@@ -40,13 +41,14 @@ class AppCupertinoButton {
           icon: icon,
           iconColor: iconColor,
           iconSize: iconSize,
-          labelAlignment: labelAlignment,
           iconPosition: iconPosition,
+          labelPosition: labelPosition,
         ),
       ),
     );
   }
 
+  /// Outlined iOS button (Secondary actions)
   static Widget outlined({
     required BuildContext context,
     required String title,
@@ -61,14 +63,14 @@ class AppCupertinoButton {
     double borderRadius = 12,
     double borderWidth = 1.5,
 
-    // New:
+    // New customization:
     IconData? icon,
     Color? iconColor,
     double iconSize = 22,
-    IconPosition iconPosition = IconPosition.leading,
-    MainAxisAlignment labelAlignment = MainAxisAlignment.center,
+    Position iconPosition = Position.leading,
+    Position labelPosition = Position.center,
   }) {
-    final double scale = DeviceHelper.getScalingFactor(context);
+    final scale = DeviceHelper.getScalingFactor(context);
 
     return Container(
       width: width != null ? width * scale : double.infinity,
@@ -86,8 +88,8 @@ class AppCupertinoButton {
       child: CupertinoButton(
         padding: EdgeInsets.symmetric(horizontal: horizontalPadding * scale),
         borderRadius: BorderRadius.circular(borderRadius * scale),
-        onPressed: onPressed,
         color: Colors.transparent,
+        onPressed: onPressed,
         child: _buildContent(
           context: context,
           title: title,
@@ -95,13 +97,14 @@ class AppCupertinoButton {
           icon: icon,
           iconColor: iconColor,
           iconSize: iconSize,
-          labelAlignment: labelAlignment,
           iconPosition: iconPosition,
+          labelPosition: labelPosition,
         ),
       ),
     );
   }
 
+  /// 👇 Handles spacing, icon alignment, full-clickable area
   static Widget _buildContent({
     required BuildContext context,
     required String title,
@@ -109,12 +112,13 @@ class AppCupertinoButton {
     IconData? icon,
     Color? iconColor,
     double iconSize = 22,
-    IconPosition iconPosition = IconPosition.leading,
-    MainAxisAlignment labelAlignment = MainAxisAlignment.center,
+    Position iconPosition = Position.leading,
+    Position labelPosition = Position.center,
   }) {
-    final double scale = DeviceHelper.getScalingFactor(context);
+    final scale = DeviceHelper.getScalingFactor(context);
 
     final textWidget = Text(title, style: titleStyle);
+
     final iconWidget = icon != null
         ? Icon(
             icon,
@@ -123,50 +127,76 @@ class AppCupertinoButton {
           )
         : null;
 
-    List<Widget> children = [];
-
-    switch (iconPosition) {
-      case IconPosition.leading:
-        if (iconWidget != null) children.add(iconWidget);
-        children.add(textWidget);
-        break;
-
-      case IconPosition.center:
-        children.add(textWidget);
-        if (iconWidget != null) children.add(iconWidget);
-        break;
-
-      case IconPosition.trailing:
-        children.add(textWidget);
-        if (iconWidget != null) children.add(iconWidget);
-        break;
+    /// 🧠 Special case: Center icon & separate label alignment
+    if (iconWidget != null && iconPosition == Position.center) {
+      return SizedBox.expand(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Align(
+              alignment: _toAlign(labelPosition),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4 * scale),
+                child: textWidget,
+              ),
+            ),
+            iconWidget,
+          ],
+        ),
+      );
     }
 
-    return Row(
-      mainAxisAlignment: labelAlignment,
-      mainAxisSize: MainAxisSize.min,
-      children: children
-          .map(
-            (e) => Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4.0 * scale),
-              child: e,
-            ),
-          )
-          .toList(),
+    /// Normal Row case
+    List<Widget> rowChildren = [];
+
+    if (iconPosition == Position.leading && iconWidget != null) {
+      rowChildren.add(iconWidget);
+    }
+
+    rowChildren.add(textWidget);
+
+    if (iconPosition == Position.trailing && iconWidget != null) {
+      rowChildren.add(iconWidget);
+    }
+
+    return SizedBox.expand(
+      child: Row(
+        mainAxisAlignment: _mapPositionToAlignment(labelPosition),
+        mainAxisSize: MainAxisSize.max,
+        children: rowChildren
+            .map(
+              (e) => Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4 * scale),
+                child: e,
+              ),
+            )
+            .toList(),
+      ),
     );
   }
-}
 
-extension _Decorated on Widget {
-  /// Helper to wrap a widget with a BoxDecoration
-  Widget decorated({Color? color, Border? border, BorderRadius? borderRadius}) {
-    return Container(
-      decoration: BoxDecoration(
-        color: color,
-        border: border,
-        borderRadius: borderRadius,
-      ),
-      child: this,
-    );
+  /// Convert Position → Row Alignment
+  static MainAxisAlignment _mapPositionToAlignment(Position pos) {
+    switch (pos) {
+      case Position.leading:
+        return MainAxisAlignment.start;
+      case Position.trailing:
+        return MainAxisAlignment.end;
+      case Position.center:
+      default:
+        return MainAxisAlignment.center;
+    }
+  }
+
+  /// Convert Position → Stack Alignment
+  static Alignment _toAlign(Position pos) {
+    switch (pos) {
+      case Position.leading:
+        return Alignment.centerLeft;
+      case Position.trailing:
+        return Alignment.centerRight;
+      default:
+        return Alignment.center;
+    }
   }
 }
