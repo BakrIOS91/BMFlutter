@@ -10,7 +10,6 @@ class AppCupertinoButton {
     required VoidCallback? onPressed,
     TextStyle? titleStyle,
     Color? backgroundColor,
-    Color? textColor,
     double height = 50,
     double horizontalPadding = 20,
     double? width, // 👈 added
@@ -37,22 +36,48 @@ class AppCupertinoButton {
     required VoidCallback? onPressed,
     TextStyle? titleStyle,
     Color? borderColor,
-    Color? textColor,
+    Color? backgroundColor,
+    double backgroundOpacity = 0.0,
     double height = 50,
     double horizontalPadding = 20,
+    double? width,
+    double borderRadius = 12,
+    double borderWidth = 1.5,
   }) {
     final double scale = DeviceHelper.getScalingFactor(context);
 
     return SizedBox(
-      width: double.infinity,
+      width: width != null ? width * scale : double.infinity,
       height: height * scale,
       child: CupertinoButton(
         padding: EdgeInsets.symmetric(horizontal: horizontalPadding * scale),
-        borderRadius: BorderRadius.circular(12 * scale),
-        color: Colors.transparent,
+        color:
+            backgroundColor?.withOpacity(backgroundOpacity) ??
+            Colors.transparent,
+        borderRadius: BorderRadius.circular(borderRadius * scale),
         onPressed: onPressed,
         child: Text(title, style: titleStyle),
       ),
+    ).decorated(
+      border: Border.all(
+        color: borderColor ?? Colors.black,
+        width: borderWidth * scale,
+      ),
+      borderRadius: BorderRadius.circular(borderRadius * scale),
+    );
+  }
+}
+
+extension _Decorated on Widget {
+  /// Helper to wrap a widget with a BoxDecoration
+  Widget decorated({Color? color, Border? border, BorderRadius? borderRadius}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: color,
+        border: border,
+        borderRadius: borderRadius,
+      ),
+      child: this,
     );
   }
 }
