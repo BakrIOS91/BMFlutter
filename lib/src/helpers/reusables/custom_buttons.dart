@@ -13,11 +13,12 @@ class AppCupertinoButton {
     Color? textColor,
     double height = 50,
     double horizontalPadding = 20,
+    double? width, // 👈 added
   }) {
     final double scale = DeviceHelper.getScalingFactor(context);
 
     return SizedBox(
-      width: double.infinity,
+      width: width != null ? width * scale : double.infinity,
       height: height * scale,
       child: CupertinoButton(
         padding: EdgeInsets.symmetric(horizontal: horizontalPadding * scale),
