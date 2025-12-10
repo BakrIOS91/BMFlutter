@@ -15,7 +15,8 @@ class AppCupertinoButton {
     double height = 50,
     double horizontalPadding = 20,
     double? width,
-
+    Color? shadowColor,
+    double shadowBlurRadius = 0,
     IconData? icon,
     Color? iconColor,
     double iconSize = 22,
@@ -35,6 +36,17 @@ class AppCupertinoButton {
         decoration: BoxDecoration(
           color: backgroundColor ?? Colors.white,
           borderRadius: BorderRadius.circular(12 * scale),
+          boxShadow: shadowBlurRadius > 0
+              ? [
+                  BoxShadow(
+                    color:
+                        shadowColor?.withValues(alpha: 0.3) ?? Colors.black26,
+                    blurRadius: shadowBlurRadius * scale,
+                    spreadRadius: 0,
+                    offset: Offset(0, 2 * scale),
+                  ),
+                ]
+              : [],
         ),
         padding: EdgeInsets.symmetric(horizontal: horizontalPadding * scale),
         child: _buildContent(
@@ -65,7 +77,8 @@ class AppCupertinoButton {
     double? width,
     double borderRadius = 12,
     double borderWidth = 1.5,
-
+    Color? shadowColor,
+    double shadowBlurRadius = 0,
     IconData? icon,
     Color? iconColor,
     double iconSize = 22,
@@ -89,6 +102,17 @@ class AppCupertinoButton {
           ),
           borderRadius: BorderRadius.circular(borderRadius * scale),
           color: backgroundColor?.withValues(alpha: backgroundOpacity),
+          boxShadow: shadowBlurRadius > 0
+              ? [
+                  BoxShadow(
+                    color:
+                        shadowColor?.withValues(alpha: 0.3) ?? Colors.black26,
+                    blurRadius: shadowBlurRadius * scale,
+                    spreadRadius: 0,
+                    offset: Offset(0, 2 * scale),
+                  ),
+                ]
+              : [],
         ),
         padding: EdgeInsets.symmetric(horizontal: horizontalPadding * scale),
         child: _buildContent(
