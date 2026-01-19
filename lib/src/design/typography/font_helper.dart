@@ -129,7 +129,9 @@ class FontHelper {
       fontSize: scaledSize,
       fontWeight: fontWeight,
       color: color,
-      height: lineHeight, // 👈 line spacing support
+      height: lineHeight == null
+          ? null
+          : lineHeight * scale, // 👈 line spacing support
     );
   }
 }
