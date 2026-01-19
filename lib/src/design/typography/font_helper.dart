@@ -4,6 +4,7 @@
 /// - Automatically scales font sizes based on device size
 /// - Resolves font family from the app theme (via ThemeExtension)
 /// - Supports custom font weight abstractions
+/// - Supports configurable line height (line spacing)
 /// - Ensures consistent typography across all screens and clients
 ///
 /// The helper is intentionally **stateless** and **theme-driven**,
@@ -18,6 +19,7 @@
 ///     size: 16,
 ///     weight: CustomFontWeight.bold,
 ///     color: Colors.blue,
+///     lineHeight: 1.4,
 ///   ),
 /// )
 /// ```
@@ -30,8 +32,8 @@ import 'package:flutter/material.dart';
 /// Typography Theme Extension
 /// ---------------------------------------------------------------------------
 ///
-/// This extension allows the design system to define typography tokens
-/// (such as font family) without hard-coupling them to ThemeData.
+/// Defines typography tokens (e.g. font family) for the design system
+/// without hard-coupling them to ThemeData.
 ///
 /// Why ThemeExtension?
 /// - Supports runtime updates
@@ -66,26 +68,38 @@ class AppTypography extends ThemeExtension<AppTypography> {
 /// - Automatically scale with screen size
 /// - Resolve font family from AppTypography
 /// - Convert custom font weight abstractions to Flutter FontWeight
+/// - Optionally apply line height (line spacing)
 ///
 /// ⚠️ Important:
 /// `inherit: false` is intentionally used to prevent DefaultTextStyle
 /// or Theme text styles from overriding design-system decisions.
 ///
 class FontHelper {
-  /// Creates a scaled, theme-aware TextStyle
+  /// Creates a scaled, theme-aware TextStyle.
   ///
   /// Parameters:
   /// - [context]: BuildContext used to resolve theme and device size
   /// - [size]: Base font size in logical pixels (default: 14)
   /// - [weight]: Font weight abstraction (default: regular / 400)
   /// - [color]: Text color (default: Colors.black)
+  /// - [lineHeight]:
+  ///   Line height multiplier relative to font size.
+  ///   Examples:
+  ///   - 1.2 → tight
+  ///   - 1.4 → normal (recommended for body text)
+  ///   - 1.6 → relaxed / descriptive text
   ///
-  /// Font family is **auto-detected** from [AppTypography].
+  /// Notes:
+  /// - Line height is **not scaled manually**
+  /// - It scales naturally with font size
+  /// - `null` preserves Flutter default behavior
+  ///
   static TextStyle style({
     required BuildContext context,
     double size = 14,
     FontWeightProtocol weight = const _DefaultFontWeight(),
     Color color = Colors.black,
+    double? lineHeight,
   }) {
     // -----------------------------------------------------------------------
     // Responsive scaling
@@ -107,7 +121,6 @@ class FontHelper {
     // Resolve font family from typography theme extension
     // -----------------------------------------------------------------------
     final typography = Theme.of(context).extension<AppTypography>();
-
     final fontFamily = typography?.fontFamily;
 
     return TextStyle(
@@ -116,6 +129,7 @@ class FontHelper {
       fontSize: scaledSize,
       fontWeight: fontWeight,
       color: color,
+      height: lineHeight, // 👈 line spacing support
     );
   }
 }
