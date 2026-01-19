@@ -1,28 +1,22 @@
 import 'package:bmflutter/core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 /// ---------------------------------------------------------------------------
-/// UnderlinedButton
+/// UnderlinedButton (iOS style)
 /// ---------------------------------------------------------------------------
 ///
-/// A lightweight text button that:
-/// - Displays underlined text
-/// - Accepts a full [TextStyle] for maximum flexibility
+/// A lightweight underlined text button with:
+/// - iOS-style tap feedback (opacity)
+/// - No splash/ripple
+/// - Accepts full [TextStyle] override
 /// - Defaults to design-system typography via [FontHelper]
-/// - Has no background or elevation
-///
-/// Recommended use cases:
-/// - Inline actions (Retry, Learn more, Edit)
-/// - Secondary CTAs
-/// - Text links inside alerts or bottom sheets
 ///
 class UnderlinedButton extends StatelessWidget {
   final String title;
   final VoidCallback onPressed;
 
-  /// Optional text style override.
-  ///
-  /// If not provided, a default style is created using [FontHelper].
+  /// Optional text style override
   final TextStyle? style;
 
   const UnderlinedButton({
@@ -40,13 +34,12 @@ class UnderlinedButton extends StatelessWidget {
       color: Theme.of(context).colorScheme.primary,
     );
 
-    return TextButton(
+    return CupertinoButton(
+      // iOS-style button
+      padding: EdgeInsets.zero,
+      minSize: 0,
       onPressed: onPressed,
-      style: TextButton.styleFrom(
-        padding: EdgeInsets.zero,
-        minimumSize: Size.zero,
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      ),
+      pressedOpacity: 0.3, // subtle fade when pressed
       child: Text(
         title,
         style: (style ?? defaultStyle).copyWith(
