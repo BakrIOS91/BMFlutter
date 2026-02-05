@@ -5,11 +5,14 @@ import 'package:flutter/material.dart';
 enum Position { leading, center, trailing }
 
 class AppCupertinoButton {
+  /// =========================
   /// Filled Button
+  /// =========================
   static Widget filled({
     required BuildContext context,
     required String title,
     required VoidCallback? onPressed,
+    bool enabled = true,
     TextStyle? titleStyle,
     Color? backgroundColor,
     double height = 50,
@@ -25,49 +28,67 @@ class AppCupertinoButton {
   }) {
     final scale = DeviceHelper.getScalingFactor(context);
 
+    final effectiveBackground = enabled
+        ? backgroundColor ?? Colors.white
+        : Colors.grey.shade300;
+
+    final effectiveTitleStyle = enabled
+        ? titleStyle
+        : titleStyle?.copyWith(color: Colors.grey);
+
+    final effectiveIconColor = enabled
+        ? iconColor ?? titleStyle?.color
+        : Colors.grey;
+
     return CupertinoButton(
       padding: EdgeInsets.zero,
       borderRadius: BorderRadius.circular(12 * scale),
       color: Colors.transparent,
-      onPressed: onPressed,
-      child: Container(
-        width: width != null ? width * scale : double.infinity,
-        height: height * scale,
-        decoration: BoxDecoration(
-          color: backgroundColor ?? Colors.white,
-          borderRadius: BorderRadius.circular(12 * scale),
-          boxShadow: shadowBlurRadius > 0
-              ? [
-                  BoxShadow(
-                    color:
-                        shadowColor?.withValues(alpha: 0.3) ?? Colors.black26,
-                    blurRadius: shadowBlurRadius * scale,
-                    spreadRadius: 0,
-                    offset: Offset(0, 2 * scale),
-                  ),
-                ]
-              : [],
-        ),
-        padding: EdgeInsets.symmetric(horizontal: horizontalPadding * scale),
-        child: _buildContent(
-          context: context,
-          title: title,
-          titleStyle: titleStyle,
-          icon: icon,
-          iconColor: iconColor,
-          iconSize: iconSize,
-          iconPosition: iconPosition,
-          labelPosition: labelPosition,
+      onPressed: enabled ? onPressed : null,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 150),
+        opacity: enabled ? 1.0 : 0.6,
+        child: Container(
+          width: width != null ? width * scale : double.infinity,
+          height: height * scale,
+          decoration: BoxDecoration(
+            color: effectiveBackground,
+            borderRadius: BorderRadius.circular(12 * scale),
+            boxShadow: shadowBlurRadius > 0
+                ? [
+                    BoxShadow(
+                      color:
+                          shadowColor?.withValues(alpha: 0.3) ?? Colors.black26,
+                      blurRadius: shadowBlurRadius * scale,
+                      offset: Offset(0, 2 * scale),
+                    ),
+                  ]
+                : [],
+          ),
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding * scale),
+          child: _buildContent(
+            context: context,
+            title: title,
+            titleStyle: effectiveTitleStyle,
+            icon: icon,
+            iconColor: effectiveIconColor,
+            iconSize: iconSize,
+            iconPosition: iconPosition,
+            labelPosition: labelPosition,
+          ),
         ),
       ),
     );
   }
 
+  /// =========================
   /// Outlined Button
+  /// =========================
   static Widget outlined({
     required BuildContext context,
     required String title,
     required VoidCallback? onPressed,
+    bool enabled = true,
     TextStyle? titleStyle,
     Color? borderColor,
     Color? backgroundColor,
@@ -87,49 +108,70 @@ class AppCupertinoButton {
   }) {
     final scale = DeviceHelper.getScalingFactor(context);
 
+    final effectiveBorder = enabled
+        ? borderColor ?? Colors.black
+        : Colors.grey.shade400;
+
+    final effectiveBackground = enabled
+        ? backgroundColor?.withValues(alpha: backgroundOpacity)
+        : Colors.grey.withValues(alpha: 0.1);
+
+    final effectiveTitleStyle = enabled
+        ? titleStyle
+        : titleStyle?.copyWith(color: Colors.grey);
+
+    final effectiveIconColor = enabled
+        ? iconColor ?? titleStyle?.color
+        : Colors.grey;
+
     return CupertinoButton(
       padding: EdgeInsets.zero,
       borderRadius: BorderRadius.circular(borderRadius * scale),
       color: Colors.transparent,
-      onPressed: onPressed,
-      child: Container(
-        width: width != null ? width * scale : double.infinity,
-        height: height * scale,
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: borderColor ?? Colors.black,
-            width: borderWidth * scale,
+      onPressed: enabled ? onPressed : null,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 150),
+        opacity: enabled ? 1.0 : 0.5,
+        child: Container(
+          width: width != null ? width * scale : double.infinity,
+          height: height * scale,
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: effectiveBorder,
+              width: borderWidth * scale,
+            ),
+            borderRadius: BorderRadius.circular(borderRadius * scale),
+            color: effectiveBackground,
+            boxShadow: shadowBlurRadius > 0
+                ? [
+                    BoxShadow(
+                      color:
+                          shadowColor?.withValues(alpha: 0.3) ?? Colors.black26,
+                      blurRadius: shadowBlurRadius * scale,
+                      offset: Offset(0, 2 * scale),
+                    ),
+                  ]
+                : [],
           ),
-          borderRadius: BorderRadius.circular(borderRadius * scale),
-          color: backgroundColor?.withValues(alpha: backgroundOpacity),
-          boxShadow: shadowBlurRadius > 0
-              ? [
-                  BoxShadow(
-                    color:
-                        shadowColor?.withValues(alpha: 0.3) ?? Colors.black26,
-                    blurRadius: shadowBlurRadius * scale,
-                    spreadRadius: 0,
-                    offset: Offset(0, 2 * scale),
-                  ),
-                ]
-              : [],
-        ),
-        padding: EdgeInsets.symmetric(horizontal: horizontalPadding * scale),
-        child: _buildContent(
-          context: context,
-          title: title,
-          titleStyle: titleStyle,
-          icon: icon,
-          iconColor: iconColor,
-          iconSize: iconSize,
-          iconPosition: iconPosition,
-          labelPosition: labelPosition,
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding * scale),
+          child: _buildContent(
+            context: context,
+            title: title,
+            titleStyle: effectiveTitleStyle,
+            icon: icon,
+            iconColor: effectiveIconColor,
+            iconSize: iconSize,
+            iconPosition: iconPosition,
+            labelPosition: labelPosition,
+          ),
         ),
       ),
     );
   }
 
+  /// =========================
   /// Content Builder
+  /// =========================
   static Widget _buildContent({
     required BuildContext context,
     required String title,
@@ -173,7 +215,9 @@ class AppCupertinoButton {
     if (iconPosition == Position.leading && iconWidget != null) {
       children.add(iconWidget);
     }
+
     children.add(textWidget);
+
     if (iconPosition == Position.trailing && iconWidget != null) {
       children.add(iconWidget);
     }
