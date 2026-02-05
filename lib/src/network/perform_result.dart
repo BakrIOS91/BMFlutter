@@ -140,4 +140,22 @@ extension PerformResultSuccessTargetType on SuccessTargetType {
       );
     }
   }
+
+  /// Performs a success-only request and returns a Result with cookies/headers
+  Future<Result<NetworkResponse<void>, APIError>>
+      performResultWithCookies() async {
+    try {
+      final response = await performAsyncWithCookies();
+      return Success<NetworkResponse<void>, APIError>(response);
+    } on APIError catch (error) {
+      return Failure<NetworkResponse<void>, APIError>(error);
+    } catch (_) {
+      return Failure<NetworkResponse<void>, APIError>(
+        APIError(
+          APIErrorType.httpError,
+          statusCode: HTTPStatusCode.clientError,
+        ),
+      );
+    }
+  }
 }

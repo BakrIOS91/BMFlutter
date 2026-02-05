@@ -225,6 +225,14 @@ extension PerformAsyncSuccessTargetType on SuccessTargetType {
   ///
   /// Returns void on successful completion
   Future<void> performAsync() async {
+    await performAsyncWithCookies();
+  }
+
+  /// Performs an asynchronous network request and returns cookies/headers
+  ///
+  /// This method is identical to [performAsync] but also returns response
+  /// headers and parsed cookies so they can be used by the caller.
+  Future<NetworkResponse<void>> performAsyncWithCookies() async {
     // Check for internet connection
     if (!await TargetRequest.isConnectedToInternet) {
       throw const APIError(APIErrorType.noNetwork);
@@ -252,6 +260,8 @@ extension PerformAsyncSuccessTargetType on SuccessTargetType {
 
       final statusCode = streamedResponse.statusCode;
       final statusCategory = HTTPStatusCode.from(statusCode);
+      final rawSetCookie = streamedResponse.headers['set-cookie'];
+      final cookies = parseSetCookieHeader(rawSetCookie);
 
       Logger.logResponse(
         method: request.method,
@@ -262,7 +272,13 @@ extension PerformAsyncSuccessTargetType on SuccessTargetType {
       // Handle different status code ranges
       switch (statusCategory) {
         case HTTPStatusCode.success:
-          return;
+          return NetworkResponse<void>(
+            data: null,
+            statusCode: statusCode,
+            headers: streamedResponse.headers,
+            rawSetCookieHeader: rawSetCookie,
+            cookies: cookies,
+          );
         default:
           throw APIError(APIErrorType.httpError, statusCode: statusCategory);
       }
