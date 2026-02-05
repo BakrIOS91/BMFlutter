@@ -10,6 +10,8 @@ class ErrorView extends StatelessWidget {
   final VoidCallback? retryAction;
   final Image image;
   final Widget? retryButton;
+  final Color? backgroundColor; // New parameter for background color
+  final Decoration? backgroundDecoration; // New parameter for custom decoration
 
   const ErrorView({
     super.key,
@@ -21,13 +23,21 @@ class ErrorView extends StatelessWidget {
     this.retryAction,
     required this.image,
     this.retryButton,
+    this.backgroundColor,
+    this.backgroundDecoration,
   });
 
   @override
   Widget build(BuildContext context) {
     final double scale = DeviceHelper.getScalingFactor(context);
-    return Scaffold(
-      body: Center(
+    return Container(
+      // Using Container instead of Scaffold for background support
+      decoration:
+          backgroundDecoration ??
+          BoxDecoration(
+            color: backgroundColor ?? Colors.white, // Default background
+          ),
+      child: Center(
         child: Padding(
           padding: EdgeInsets.all(16 * scale),
           child: Column(
