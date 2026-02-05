@@ -28,6 +28,7 @@ library;
 
 import 'package:bmflutter/src/helpers/enums.dart';
 import 'package:bmflutter/src/helpers/models/downloaded_file.dart';
+import 'package:bmflutter/src/helpers/network/network_response.dart';
 import 'package:bmflutter/src/helpers/network/result.dart';
 import 'package:bmflutter/src/network/perform_async.dart';
 import 'package:bmflutter/src/network/target_request.dart';
@@ -58,6 +59,27 @@ extension PerformResultModelTargetType on ModelTargetType {
     } catch (_) {
       // Catch unexpected runtime errors
       return Failure<Response, APIError>(
+        APIError(
+          APIErrorType.httpError,
+          statusCode: HTTPStatusCode.clientError,
+        ),
+      );
+    }
+  }
+
+  /// Performs a network request and returns a Result with cookies/headers
+  ///
+  /// This method wraps [performAsyncWithCookies] in a Result for functional
+  /// error handling.
+  Future<Result<NetworkResponse<Response>, APIError>>
+      performResultWithCookies<Response>() async {
+    try {
+      final response = await performAsyncWithCookies<Response>();
+      return Success<NetworkResponse<Response>, APIError>(response);
+    } on APIError catch (error) {
+      return Failure<NetworkResponse<Response>, APIError>(error);
+    } catch (_) {
+      return Failure<NetworkResponse<Response>, APIError>(
         APIError(
           APIErrorType.httpError,
           statusCode: HTTPStatusCode.clientError,

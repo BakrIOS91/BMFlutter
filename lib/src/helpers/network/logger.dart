@@ -184,7 +184,7 @@ class Logger {
   /// - [json]: The JSON data to format
   ///
   /// Returns a formatted JSON string or fallback representation
-  static String _prettyPrintJson(Map<String, dynamic> json) {
+  static String _prettyPrintJson(dynamic json) {
     try {
       // Use JsonEncoder with 2-space indentation for pretty printing
       const encoder = JsonEncoder.withIndent('  ');

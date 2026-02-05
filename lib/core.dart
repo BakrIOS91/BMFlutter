@@ -11,6 +11,7 @@ export 'src/helpers/network/base_client.dart';
 export 'src/helpers/network/logger.dart';
 export 'src/helpers/network/network_converters.dart';
 export 'src/helpers/network/network_monitor.dart';
+export 'src/helpers/network/network_response.dart';
 export 'src/helpers/network/request_task.dart';
 export 'src/helpers/network/result.dart';
 export 'src/helpers/network/ssl_pinning.dart';

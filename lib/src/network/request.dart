@@ -80,6 +80,13 @@ extension Request on TargetRequest {
   Future<http.BaseRequest> _configureRESTRequest(http.Request request) async {
     switch (requestTask.type) {
       case RequestTaskType.plain:
+        Logger.logRequest(
+          method: request.method,
+          url: request.url,
+          headers: request.headers,
+        );
+        return request;
+
       case RequestTaskType.download:
         return request;
 
@@ -89,8 +96,21 @@ extension Request on TargetRequest {
           final uri = request.url.replace(queryParameters: params);
           final newReq = http.Request(request.method, uri)
             ..headers.addAll(request.headers);
+
+          Logger.logRequest(
+            method: newReq.method,
+            url: newReq.url,
+            headers: newReq.headers,
+            parameters: params,
+          );
           return newReq;
         }
+
+        Logger.logRequest(
+          method: request.method,
+          url: request.url,
+          headers: request.headers,
+        );
         return request;
 
       case RequestTaskType.encodedBody:

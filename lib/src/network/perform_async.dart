@@ -28,6 +28,7 @@ import 'package:bmflutter/src/helpers/enums.dart';
 import 'package:bmflutter/src/helpers/models/downloaded_file.dart';
 import 'package:bmflutter/src/helpers/network/logger.dart';
 import 'package:bmflutter/src/helpers/network/network_converters.dart';
+import 'package:bmflutter/src/helpers/network/network_response.dart';
 import 'package:bmflutter/src/network/request.dart';
 import 'package:bmflutter/src/network/target_request.dart';
 import 'package:flutter/foundation.dart';
@@ -53,6 +54,15 @@ extension PerformAsyncModelTargetType on ModelTargetType {
   ///
   /// Returns the decoded response data as the specified type
   Future<Response> performAsync<Response>() async {
+    final response = await performAsyncWithCookies<Response>();
+    return response.data;
+  }
+
+  /// Performs an async network request and returns data with cookies/headers
+  ///
+  /// This method is identical to [performAsync] but also returns response
+  /// headers and parsed cookies so they can be used by the caller.
+  Future<NetworkResponse<Response>> performAsyncWithCookies<Response>() async {
     // Check for internet connection
     if (!await TargetRequest.isConnectedToInternet) {
       throw const APIError(APIErrorType.noNetwork);
@@ -75,6 +85,8 @@ extension PerformAsyncModelTargetType on ModelTargetType {
       final responseData = await streamedResponse.stream.toBytes();
       final statusCode = streamedResponse.statusCode;
       final statusCategory = HTTPStatusCode.from(statusCode);
+      final rawSetCookie = streamedResponse.headers['set-cookie'];
+      final cookies = parseSetCookieHeader(rawSetCookie);
 
       Logger.logResponse(
         method: request.method,
@@ -88,7 +100,14 @@ extension PerformAsyncModelTargetType on ModelTargetType {
         case HTTPStatusCode.success:
           try {
             final decodedJson = json.decode(utf8.decode(responseData));
-            return NetworkConverters.convert<Response>(decodedJson);
+            final data = NetworkConverters.convert<Response>(decodedJson);
+            return NetworkResponse<Response>(
+              data: data,
+              statusCode: statusCode,
+              headers: streamedResponse.headers,
+              rawSetCookieHeader: rawSetCookie,
+              cookies: cookies,
+            );
           } catch (error) {
             if (kDebugMode) {
               print(error);
