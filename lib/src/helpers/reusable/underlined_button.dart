@@ -37,9 +37,9 @@ class UnderlinedButton extends StatelessWidget {
     return CupertinoButton(
       // iOS-style button
       padding: EdgeInsets.zero,
-      minSize: 0,
       onPressed: onPressed,
-      pressedOpacity: 0.3, // subtle fade when pressed
+      pressedOpacity: 0.3,
+      minimumSize: Size(0, 0), // subtle fade when pressed
       child: Text(
         title,
         style: (style ?? defaultStyle).copyWith(

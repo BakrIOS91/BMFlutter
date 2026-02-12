@@ -1,0 +1,7 @@
+builders:
+  preferencesBuilder:
+    import: "package:bmflutter/build.dart"
+    builder_factories: ["preferencesBuilder"]
+    build_extensions: {".dart": [".preferences.dart"]}
+    auto_apply: dependents
+    build_to: source

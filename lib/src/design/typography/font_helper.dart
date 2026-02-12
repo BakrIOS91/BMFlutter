@@ -23,6 +23,7 @@
 ///   ),
 /// )
 /// ```
+library;
 
 import 'package:bmflutter/src/design/typography/app_font_weight.dart';
 import 'package:bmflutter/src/helpers/device_helper.dart';
