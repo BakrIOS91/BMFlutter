@@ -189,9 +189,20 @@ class PreferencesGenerator extends GeneratorForAnnotation<GeneratePreferences> {
     buffer.writeln("      setSecureInternal('$key', null);");
     buffer.writeln('    } else {');
     // SECURE MODELS: Encoded to JSON before being encrypted.
-    buffer.writeln(
-      "      setSecureInternal('$key', json.encode((value as dynamic).toJson()));",
-    );
+    final type = field.type;
+    if (type.isDartCoreBool || type.isDartCoreInt || type.isDartCoreDouble) {
+      buffer.writeln("      setSecureInternal('$key', value.toString());");
+    } else if (type.isDartCoreString) {
+      buffer.writeln("      setSecureInternal('$key', value);");
+    } else if (_isEnum(type.element)) {
+      buffer.writeln(
+        "      setSecureInternal('$key', (value as Enum).index.toString());",
+      );
+    } else {
+      buffer.writeln(
+        "      setSecureInternal('$key', json.encode((value as dynamic).toJson()));",
+      );
+    }
     buffer.writeln('    }');
   }
 
@@ -260,9 +271,30 @@ class PreferencesGenerator extends GeneratorForAnnotation<GeneratePreferences> {
         buffer.writeln(
           '      if (jsonString != null && jsonString.isNotEmpty) {',
         );
-        buffer.writeln(
-          '        $notifierName.value = $type.fromJson(json.decode(jsonString)) as dynamic;',
-        );
+
+        final typeElement = field.type.element;
+        if (field.type.isDartCoreBool) {
+          buffer.writeln('        $notifierName.value = jsonString == "true";');
+        } else if (field.type.isDartCoreInt) {
+          buffer.writeln(
+            '        $notifierName.value = int.parse(jsonString);',
+          );
+        } else if (field.type.isDartCoreDouble) {
+          buffer.writeln(
+            '        $notifierName.value = double.parse(jsonString);',
+          );
+        } else if (field.type.isDartCoreString) {
+          buffer.writeln('        $notifierName.value = jsonString;');
+        } else if (_isEnum(typeElement)) {
+          buffer.writeln('        final index = int.parse(jsonString);');
+          buffer.writeln(
+            '        if (index < $type.values.length) { $notifierName.value = $type.values[index]; }',
+          );
+        } else {
+          buffer.writeln(
+            '        $notifierName.value = $type.fromJson(json.decode(jsonString)) as dynamic;',
+          );
+        }
         buffer.writeln('      }');
         buffer.writeln('    });');
       }

@@ -22,6 +22,7 @@ dependencies:
   source_gen: ^4.2.0
   build: ^4.0.4
   meta: ^1.17.0
+  provider: ^6.1.5+1
 
 dev_dependencies:
   flutter_test:
