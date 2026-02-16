@@ -14,15 +14,6 @@ class SecurityCheckResult {
 }
 
 /// A helper class for comprehensive device security checks in Flutter.
-///
-/// Combines multiple approaches:
-/// 1️⃣ `root_jailbreak_sniffer` for quick root/jailbreak, emulator, and debugger detection.
-/// 2️⃣ `jailbreak_root_detection` for deep device integrity checks.
-/// 3️⃣ Optional advanced checks:
-///    - Frida / hooking detection (runtime checks)
-///    - Binary integrity / SHA256 hash check
-///    - Flutter-specific constants exposure check
-///    - Multiple-layer root detection on Android
 class DeviceSecurityHelper {
   /// Performs a comprehensive security check
   static Future<SecurityCheckResult> checkDeviceSecurity({
@@ -69,29 +60,32 @@ class DeviceSecurityHelper {
       final isNotTrust = await detector.isNotTrust;
       final isJailBroken = await detector.isJailBroken;
       final isRealDevice = await detector.isRealDevice;
+      final isDebugged = await detector.isDebugged;
       final checkForIssues = await detector.checkForIssues;
 
-      // Only enforce emulator check if flag is true
+      // Emulator / non-real device checks
       if (!isRealDevice && checkEmulator) {
         issues.add("Not a real device (jailbreak_root_detection)");
       }
 
-      // Root/jailbreak is critical, always check
-      if (isJailBroken) {
-        issues.add("Root/Jailbreak detected (jailbreak_root_detection)");
-      }
-
-      // Only enforce debugger if flag is true
-      final isDebugged = await detector.isDebugged;
+      // Debugger detection
       if (isDebugged && checkDebugging) {
         issues.add("Debugger attached (jailbreak_root_detection)");
       }
 
-      if (isNotTrust) {
+      // Critical security checks always run
+      if (isJailBroken) {
+        // Only report if real device to avoid false positives in simulator
+        if (isRealDevice)
+          issues.add("Root/Jailbreak detected (jailbreak_root_detection)");
+      }
+
+      if (isNotTrust && isRealDevice) {
         issues.add("Device not trusted (jailbreak_root_detection)");
       }
 
-      if (checkForIssues.isNotEmpty) {
+      // Only report other jailbreak issues if device is real AND emulator check is enabled
+      if (checkForIssues.isNotEmpty && isRealDevice && checkEmulator) {
         issues.add(
           "Potential security issues detected (jailbreak_root_detection): ${checkForIssues.join(', ')}",
         );
