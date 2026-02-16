@@ -408,6 +408,8 @@ sealed class ViewState {
   static const unexpectedError = UnexpectedError();
   static const unauthorized = Unauthorized();
   static const forceUpdate = ForceUpdateError();
+  static const jailBroken = JailBroken();
+  static const searchError = SearchError();
 }
 
 // Non-error states
@@ -476,6 +478,12 @@ final class SearchError extends ViewState {
 
 final class ForceUpdateError extends ViewState {
   const ForceUpdateError();
+  @override
+  bool get isError => true;
+}
+
+final class JailBroken extends ViewState {
+  const JailBroken();
   @override
   bool get isError => true;
 }
