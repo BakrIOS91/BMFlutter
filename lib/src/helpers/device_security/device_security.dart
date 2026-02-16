@@ -40,22 +40,24 @@ class DeviceSecurityHelper {
       // =============================
       // 1️⃣ root_jailbreak_sniffer checks
       // =============================
-      bool? rjsCompromised = await Rjsniffer.amICompromised();
-      if (rjsCompromised ?? false) {
-        issues.add("Root/Jailbreak detected (root_jailbreak_sniffer)");
-      }
-
-      if (checkEmulator) {
-        bool? rjsEmulator = await Rjsniffer.amIEmulator();
-        if (rjsEmulator ?? false) {
-          issues.add("Emulator detected (root_jailbreak_sniffer)");
+      if (checkEmulator || checkDebugging) {
+        bool? rjsCompromised = await Rjsniffer.amICompromised();
+        if (rjsCompromised ?? false) {
+          issues.add("Root/Jailbreak detected (root_jailbreak_sniffer)");
         }
-      }
 
-      if (checkDebugging) {
-        bool? rjsDebugged = await Rjsniffer.amIDebugged();
-        if (rjsDebugged ?? false) {
-          issues.add("Debugger attached (root_jailbreak_sniffer)");
+        if (checkEmulator) {
+          bool? rjsEmulator = await Rjsniffer.amIEmulator();
+          if (rjsEmulator ?? false) {
+            issues.add("Emulator detected (root_jailbreak_sniffer)");
+          }
+        }
+
+        if (checkDebugging) {
+          bool? rjsDebugged = await Rjsniffer.amIDebugged();
+          if (rjsDebugged ?? false) {
+            issues.add("Debugger attached (root_jailbreak_sniffer)");
+          }
         }
       }
 
@@ -69,12 +71,26 @@ class DeviceSecurityHelper {
       final isRealDevice = await detector.isRealDevice;
       final checkForIssues = await detector.checkForIssues;
 
-      if (isNotTrust)
-        issues.add("Device not trusted (jailbreak_root_detection)");
-      if (isJailBroken)
-        issues.add("Root/Jailbreak detected (jailbreak_root_detection)");
-      if (!isRealDevice)
+      // Only enforce emulator check if flag is true
+      if (!isRealDevice && checkEmulator) {
         issues.add("Not a real device (jailbreak_root_detection)");
+      }
+
+      // Root/jailbreak is critical, always check
+      if (isJailBroken) {
+        issues.add("Root/Jailbreak detected (jailbreak_root_detection)");
+      }
+
+      // Only enforce debugger if flag is true
+      final isDebugged = await detector.isDebugged;
+      if (isDebugged && checkDebugging) {
+        issues.add("Debugger attached (jailbreak_root_detection)");
+      }
+
+      if (isNotTrust) {
+        issues.add("Device not trusted (jailbreak_root_detection)");
+      }
+
       if (checkForIssues.isNotEmpty) {
         issues.add(
           "Potential security issues detected (jailbreak_root_detection): ${checkForIssues.join(', ')}",
@@ -87,9 +103,12 @@ class DeviceSecurityHelper {
       if (defaultTargetPlatform == TargetPlatform.android) {
         final isOnExternalStorage = await detector.isOnExternalStorage;
         final isDevMode = await detector.isDevMode;
-        if (isOnExternalStorage)
+        if (isOnExternalStorage) {
           issues.add("App installed on external storage (Android)");
-        if (isDevMode) issues.add("Developer mode enabled (Android)");
+        }
+        if (isDevMode) {
+          issues.add("Developer mode enabled (Android)");
+        }
 
         final suPaths = [
           '/system/bin/su',
@@ -109,8 +128,9 @@ class DeviceSecurityHelper {
         }
 
         final magiskPath = '/sbin/magisk';
-        if (await File(magiskPath).exists())
+        if (await File(magiskPath).exists()) {
           issues.add("Magisk detected (multiple-layer root detection)");
+        }
       }
 
       // =============================
@@ -118,7 +138,9 @@ class DeviceSecurityHelper {
       // =============================
       if (defaultTargetPlatform == TargetPlatform.iOS && bundleId != null) {
         final isTampered = await detector.isTampered(bundleId);
-        if (isTampered) issues.add("App bundle tampered (iOS)");
+        if (isTampered) {
+          issues.add("App bundle tampered (iOS)");
+        }
       }
 
       // =============================
