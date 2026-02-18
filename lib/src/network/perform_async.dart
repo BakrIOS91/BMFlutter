@@ -4,9 +4,11 @@
 /// and SuccessTargetType. It handles the execution of network requests with
 /// comprehensive error handling, logging, and response processing.
 ///
-/// The extensions support both data-fetching operations (ModelTargetType) and
-/// simple success/failure operations (SuccessTargetType), along with file
-/// download capabilities.
+/// When a 401 Unauthorized response is received on an [isAuthorized] request,
+/// the layer automatically attempts a token refresh via [TokenRefreshRegistry].
+/// If the refresh succeeds the original request is rebuilt (fresh token from
+/// [authHeaders]) and re-sent exactly once. If the refresh fails the
+/// [Unauthorized] error propagates normally.
 ///
 /// Usage:
 /// ```dart
@@ -31,51 +33,44 @@ import 'package:bmflutter/src/helpers/network/network_converters.dart';
 import 'package:bmflutter/src/helpers/network/network_response.dart';
 import 'package:bmflutter/src/network/request.dart';
 import 'package:bmflutter/src/network/target_request.dart';
+import 'package:bmflutter/src/network/token_refresh_handler.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
-/// Extension to perform async requests for ModelTargetType
-///
-/// This extension provides async network operations for requests that need
-/// to decode response data into specific model types. It handles connectivity
-/// checks, request creation, response processing, and error handling.
-///
+// ---------------------------------------------------------------------------
+// ModelTargetType
+// ---------------------------------------------------------------------------
 
+/// Extension to perform async requests for [ModelTargetType].
 extension PerformAsyncModelTargetType on ModelTargetType {
-  /// Performs an async network request and returns the decoded models
+  /// Performs an async network request and returns the decoded model.
   ///
-  /// This method executes a complete network request cycle including connectivity
-  /// checks, request creation, HTTP execution, response logging, and data decoding.
-  /// It automatically handles various error scenarios and provides detailed logging.
-  ///
-  /// Generic type [Response] represents the expected response model type
-  ///
-  /// Throws: `APIError` for various network and data conversion errors
-  ///
-  /// Returns the decoded response data as the specified type
+  /// Convenience wrapper around [performAsyncWithCookies] that discards
+  /// the response metadata and returns only the decoded data.
   Future<Response> performAsync<Response>() async {
     final response = await performAsyncWithCookies<Response>();
     return response.data;
   }
 
-  /// Performs an async network request and returns data with cookies/headers
+  /// Performs an async network request and returns data with cookies/headers.
   ///
-  /// This method is identical to [performAsync] but also returns response
-  /// headers and parsed cookies so they can be used by the caller.
+  /// Handles connectivity checks, request creation, HTTP execution, response
+  /// logging, and data decoding. On a 401 response the layer will attempt a
+  /// token refresh (if [isAuthorized] is `true` and a [TokenRefreshHandler]
+  /// is registered), rebuild the request with the fresh token, and re-send
+  /// exactly once before propagating any error.
   Future<NetworkResponse<Response>> performAsyncWithCookies<Response>() async {
-    // Check for internet connection
+    // Check for internet connection.
     if (!await TargetRequest.isConnectedToInternet) {
       throw const APIError(APIErrorType.noNetwork);
     }
 
-    // Create the HTTP request
+    // Build the initial request.
     final request = await createRequest();
+    final client = http.Client();
 
     try {
-      // Prepare client (use SSL pinning later if implemented)
-      final client = http.Client();
       http.StreamedResponse streamedResponse;
-
       try {
         streamedResponse = await client.send(request);
       } on SocketException {
@@ -95,25 +90,50 @@ extension PerformAsyncModelTargetType on ModelTargetType {
         responseData: responseData,
       );
 
-      // Handle response status
       switch (statusCategory) {
         case HTTPStatusCode.success:
-          try {
-            final decodedJson = json.decode(utf8.decode(responseData));
-            final data = NetworkConverters.convert<Response>(decodedJson);
-            return NetworkResponse<Response>(
-              data: data,
-              statusCode: statusCode,
-              headers: streamedResponse.headers,
-              rawSetCookieHeader: rawSetCookie,
-              cookies: cookies,
-            );
-          } catch (error) {
-            if (kDebugMode) {
-              print(error);
+          return _decodeResponse<Response>(
+            responseData: responseData,
+            statusCode: statusCode,
+            streamedResponse: streamedResponse,
+            rawSetCookie: rawSetCookie,
+            cookies: cookies,
+          );
+
+        case HTTPStatusCode.notAuthorize:
+          // Attempt a single token refresh if this request is authorized.
+          if (isAuthorized) {
+            final refreshed = await TokenRefreshRegistry.attemptRefresh();
+            if (refreshed) {
+              // Rebuild the request so authHeaders picks up the new token.
+              final retryRequest = await createRequest();
+              final retryStreamed = await client.send(retryRequest);
+              final retryData = await retryStreamed.stream.toBytes();
+              final retryStatusCategory = HTTPStatusCode.from(
+                retryStreamed.statusCode,
+              );
+              final retryRawSetCookie = retryStreamed.headers['set-cookie'];
+              final retryCookies = parseSetCookieHeader(retryRawSetCookie);
+
+              Logger.logResponse(
+                method: retryRequest.method,
+                url: retryRequest.url,
+                statusCode: retryStreamed.statusCode,
+                responseData: retryData,
+              );
+
+              if (retryStatusCategory == HTTPStatusCode.success) {
+                return _decodeResponse<Response>(
+                  responseData: retryData,
+                  statusCode: retryStreamed.statusCode,
+                  streamedResponse: retryStreamed,
+                  rawSetCookie: retryRawSetCookie,
+                  cookies: retryCookies,
+                );
+              }
             }
-            throw const APIError(APIErrorType.dataConversionFailed);
           }
+          throw APIError(APIErrorType.httpError, statusCode: statusCategory);
 
         default:
           throw APIError(APIErrorType.httpError, statusCode: statusCategory);
@@ -126,57 +146,103 @@ extension PerformAsyncModelTargetType on ModelTargetType {
       );
       if (error is APIError) rethrow;
       throw const APIError(APIErrorType.invalidResponse);
+    } finally {
+      client.close();
     }
   }
 
-  /// Downloads a file and returns the local file path wrapped in [DownloadedFile]
+  /// Decodes a successful HTTP response into a [NetworkResponse].
+  NetworkResponse<Response> _decodeResponse<Response>({
+    required List<int> responseData,
+    required int statusCode,
+    required http.StreamedResponse streamedResponse,
+    required String? rawSetCookie,
+    required List<Cookie> cookies,
+  }) {
+    try {
+      final decodedJson = json.decode(utf8.decode(responseData));
+      final data = NetworkConverters.convert<Response>(decodedJson);
+      return NetworkResponse<Response>(
+        data: data,
+        statusCode: statusCode,
+        headers: streamedResponse.headers,
+        rawSetCookieHeader: rawSetCookie,
+        cookies: cookies,
+      );
+    } catch (error) {
+      if (kDebugMode) print(error);
+      throw const APIError(APIErrorType.dataConversionFailed);
+    }
+  }
+
+  /// Downloads a file and returns the local file path wrapped in [DownloadedFile].
   ///
-  /// This method handles file download operations, including connectivity checks,
-  /// request creation, file streaming, and local file storage. It creates a
-  /// temporary file and streams the download data to it.
+  /// On a 401 response the layer will attempt a token refresh (if [isAuthorized]
+  /// is `true`), rebuild the request with the fresh token, and re-send exactly
+  /// once. The file sink is only opened after a successful status check so
+  /// there is no partial-write risk on the retry.
   ///
-  /// The method handles various download scenarios including resumable downloads
-  /// and provides comprehensive logging for debugging purposes.
-  ///
-  /// Throws: `APIError` for network and file system errors
-  ///
-  /// Returns a DownloadedFile instance with local and remote file information
+  /// Throws [APIError] for network and file system errors.
   Future<DownloadedFile?> performDownload() async {
     if (!await TargetRequest.isConnectedToInternet) {
       throw const APIError(APIErrorType.noNetwork);
     }
 
-    final request = await createRequest();
     final client = http.Client();
+    // Declare outside try so the catch block can reference it for logging.
+    late final http.BaseRequest request;
 
     try {
+      // Build and send the initial request.
+      request = await createRequest();
+
       Logger.logRequest(
         method: request.method,
         url: request.url,
         headers: request.headers,
       );
 
-      final streamedResponse = await client.send(request);
+      var streamedResponse = await client.send(request);
+      var statusCode = streamedResponse.statusCode;
+      var statusCategory = HTTPStatusCode.from(statusCode);
+      var remoteUrl = request.url;
 
-      final statusCode = streamedResponse.statusCode;
-      final statusCategory = HTTPStatusCode.from(statusCode);
+      // Handle 401 — attempt token refresh and retry once.
+      if (statusCategory == HTTPStatusCode.notAuthorize && isAuthorized) {
+        final refreshed = await TokenRefreshRegistry.attemptRefresh();
+        if (refreshed) {
+          // Rebuild the request so authHeaders picks up the new token.
+          final retryRequest = await createRequest();
 
-      // Get remote URL
-      final remoteUrl = request.url;
+          Logger.logRequest(
+            method: retryRequest.method,
+            url: retryRequest.url,
+            headers: retryRequest.headers,
+          );
 
-      // Create temp file for download
+          streamedResponse = await client.send(retryRequest);
+          statusCode = streamedResponse.statusCode;
+          statusCategory = HTTPStatusCode.from(statusCode);
+          remoteUrl = retryRequest.url;
+        }
+      }
+
+      // If still unauthorized after refresh attempt, propagate the error.
+      if (statusCategory == HTTPStatusCode.notAuthorize) {
+        throw APIError(APIErrorType.httpError, statusCode: statusCategory);
+      }
+
+      // Create temp file and stream the download.
       final tempDir = Directory.systemTemp;
       final filePath = '${tempDir.path}/${remoteUrl.pathSegments.last}';
       final file = File(filePath);
-
-      // Save downloaded bytes
       final sink = file.openWrite();
       await streamedResponse.stream.pipe(sink);
       await sink.close();
 
       Logger.logResponse(
         method: request.method,
-        url: request.url,
+        url: remoteUrl,
         statusCode: statusCode,
         responseData: utf8.encode('Downloaded to: $filePath'),
       );
@@ -206,40 +272,34 @@ extension PerformAsyncModelTargetType on ModelTargetType {
   }
 }
 
-/// Extension to perform async requests for SuccessTargetType
-///
-/// This extension provides async network operations for requests that don't
-/// need to decode response data. It's useful for operations like creating,
-/// updating, or deleting resources where you only care about success/failure.
+// ---------------------------------------------------------------------------
+// SuccessTargetType
+// ---------------------------------------------------------------------------
+
+/// Extension to perform async requests for [SuccessTargetType].
 extension PerformAsyncSuccessTargetType on SuccessTargetType {
-  /// Performs an asynchronous network request and returns void if successful or throws an error
+  /// Performs an asynchronous network request and returns void if successful.
   ///
-  /// This method executes a complete network request cycle for success-only operations.
-  /// It handles connectivity checks, request creation, HTTP execution, and response
-  /// validation without attempting to decode response data.
-  ///
-  /// The method is optimized for operations where the response body is not needed,
-  /// such as DELETE, PUT, or POST operations that only return status codes.
-  ///
-  /// Throws: `APIError` for various network and HTTP errors
-  ///
-  /// Returns void on successful completion
+  /// Convenience wrapper around [performAsyncWithCookies].
   Future<void> performAsync() async {
     await performAsyncWithCookies();
   }
 
-  /// Performs an asynchronous network request and returns cookies/headers
+  /// Performs an asynchronous network request and returns cookies/headers.
   ///
-  /// This method is identical to [performAsync] but also returns response
-  /// headers and parsed cookies so they can be used by the caller.
+  /// Handles connectivity checks, request creation, HTTP execution, and
+  /// response validation without decoding response data. On a 401 response
+  /// the layer will attempt a token refresh (if [isAuthorized] is `true`),
+  /// rebuild the request with the fresh token, and re-send exactly once.
   Future<NetworkResponse<void>> performAsyncWithCookies() async {
-    // Check for internet connection
+    // Check for internet connection.
     if (!await TargetRequest.isConnectedToInternet) {
       throw const APIError(APIErrorType.noNetwork);
     }
 
-    // Create the HTTP request
+    // Build the initial request.
     final request = await createRequest();
+    final client = http.Client();
 
     try {
       Logger.logRequest(
@@ -248,20 +308,17 @@ extension PerformAsyncSuccessTargetType on SuccessTargetType {
         headers: request.headers,
       );
 
-      // Prepare client (can later support SSL pinning)
-      final client = http.Client();
       http.StreamedResponse streamedResponse;
-
       try {
         streamedResponse = await client.send(request);
       } on SocketException {
         throw const APIError(APIErrorType.noNetwork);
       }
 
-      final statusCode = streamedResponse.statusCode;
-      final statusCategory = HTTPStatusCode.from(statusCode);
-      final rawSetCookie = streamedResponse.headers['set-cookie'];
-      final cookies = parseSetCookieHeader(rawSetCookie);
+      var statusCode = streamedResponse.statusCode;
+      var statusCategory = HTTPStatusCode.from(statusCode);
+      var rawSetCookie = streamedResponse.headers['set-cookie'];
+      var cookies = parseSetCookieHeader(rawSetCookie);
 
       Logger.logResponse(
         method: request.method,
@@ -269,7 +326,6 @@ extension PerformAsyncSuccessTargetType on SuccessTargetType {
         statusCode: statusCode,
       );
 
-      // Handle different status code ranges
       switch (statusCategory) {
         case HTTPStatusCode.success:
           return NetworkResponse<void>(
@@ -279,6 +335,40 @@ extension PerformAsyncSuccessTargetType on SuccessTargetType {
             rawSetCookieHeader: rawSetCookie,
             cookies: cookies,
           );
+
+        case HTTPStatusCode.notAuthorize:
+          // Attempt a single token refresh if this request is authorized.
+          if (isAuthorized) {
+            final refreshed = await TokenRefreshRegistry.attemptRefresh();
+            if (refreshed) {
+              // Rebuild the request so authHeaders picks up the new token.
+              final retryRequest = await createRequest();
+              final retryStreamed = await client.send(retryRequest);
+              final retryStatusCategory = HTTPStatusCode.from(
+                retryStreamed.statusCode,
+              );
+              final retryRawSetCookie = retryStreamed.headers['set-cookie'];
+              final retryCookies = parseSetCookieHeader(retryRawSetCookie);
+
+              Logger.logResponse(
+                method: retryRequest.method,
+                url: retryRequest.url,
+                statusCode: retryStreamed.statusCode,
+              );
+
+              if (retryStatusCategory == HTTPStatusCode.success) {
+                return NetworkResponse<void>(
+                  data: null,
+                  statusCode: retryStreamed.statusCode,
+                  headers: retryStreamed.headers,
+                  rawSetCookieHeader: retryRawSetCookie,
+                  cookies: retryCookies,
+                );
+              }
+            }
+          }
+          throw APIError(APIErrorType.httpError, statusCode: statusCategory);
+
         default:
           throw APIError(APIErrorType.httpError, statusCode: statusCategory);
       }
@@ -290,6 +380,8 @@ extension PerformAsyncSuccessTargetType on SuccessTargetType {
       );
       if (error is APIError) rethrow;
       throw const APIError(APIErrorType.invalidResponse);
+    } finally {
+      client.close();
     }
   }
 }

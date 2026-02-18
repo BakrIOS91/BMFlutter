@@ -69,6 +69,15 @@ abstract class TargetRequest {
   /// including parameters, body data, file uploads, or download settings.
   RequestTask get requestTask;
 
+  /// Whether this request carries authorization credentials.
+  ///
+  /// When `true`, a 401 response will trigger an automatic token refresh
+  /// via [TokenRefreshRegistry] before propagating the error.
+  ///
+  /// Set this to `false` on the refresh-token endpoint itself to prevent
+  /// an infinite refresh loop. Defaults to `true` in all concrete base types.
+  bool get isAuthorized;
+
   /// Standard headers for the request
   ///
   /// This property defines the standard HTTP headers that will be included
@@ -174,6 +183,11 @@ abstract class SuccessTargetType extends TargetRequest {
   @override
   RequestType get requestType => RequestType.rest;
 
+  /// Defaults to `false`
+  /// itself to prevent an infinite refresh loop.
+  @override
+  bool get isAuthorized => false;
+
   /// Empty headers by default (can be overridden)
   @override
   Map<String, String> get headers => {};
@@ -203,6 +217,11 @@ abstract class ModelTargetType<T> extends TargetRequest {
   /// Always returns REST for model-based requests
   @override
   RequestType get requestType => RequestType.rest;
+
+  /// Defaults to `false`
+  /// itself to prevent an infinite refresh loop.
+  @override
+  bool get isAuthorized => false;
 
   /// Empty headers by default (can be overridden)
   @override

@@ -30,3 +30,4 @@ export 'src/network/perform_result.dart';
 export 'src/network/request.dart';
 export 'src/network/target.dart';
 export 'src/network/target_request.dart';
+export 'src/network/token_refresh_handler.dart';
