@@ -19,6 +19,8 @@ export 'src/helpers/network/ssl_pinning.dart';
 export 'src/helpers/preferences/annotations.dart';
 export 'src/helpers/preferences/base_preferences.dart';
 export 'src/helpers/preferences/preferences_generator.dart';
+export 'src/helpers/reducer/reducer_annotation.dart';
+export 'src/helpers/reducer/reducer_generator.dart';
 export 'src/helpers/reusable/custom_buttons.dart';
 export 'src/helpers/reusable/empty_bloc_listener.dart';
 export 'src/helpers/reusable/error_view.dart';

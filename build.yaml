@@ -2,6 +2,13 @@ builders:
   preferencesBuilder:
     import: "package:bmflutter/build.dart"
     builder_factories: ["preferencesBuilder"]
-    build_extensions: {".dart": [".preferences.dart"]}
+    build_extensions: {".dart": [".preferences.g.dart"]}
+    auto_apply: dependents
+    build_to: source
+
+  reducerBuilder:
+    import: "package:bmflutter/build.dart"
+    builder_factories: ["reducerBuilder"]
+    build_extensions: {".dart": [".reducer.g.dart"]}
     auto_apply: dependents
     build_to: source
