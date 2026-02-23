@@ -1,7 +1,9 @@
-import 'package:bmflutter/src/helpers/preferences/preferences_generator.dart';
-import 'package:bmflutter/src/helpers/reducer/reducer_generator.dart';
 import 'package:build/build.dart';
 import 'package:source_gen/source_gen.dart';
+
+import 'src/helpers/preferences/preferences_generator.dart';
+import 'src/helpers/river_pod/di/provider_generator.dart';
+import 'src/helpers/river_pod/reducer/reducer_generator.dart';
 
 /// Preferences builder
 Builder preferencesBuilder(BuilderOptions options) =>
@@ -10,3 +12,7 @@ Builder preferencesBuilder(BuilderOptions options) =>
 /// Reducer builder
 Builder reducerBuilder(BuilderOptions options) =>
     PartBuilder([ReducerGenerator()], '.reducer.g.dart');
+
+/// Provider DI builder (your ProviderGenerator)
+Builder providerBuilder(BuilderOptions options) =>
+    PartBuilder([ProviderGenerator()], '.providers.g.dart');

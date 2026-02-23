@@ -20,8 +20,9 @@ library;
 
 import 'dart:typed_data';
 
-import 'package:bmflutter/core.dart';
 import 'package:flutter/material.dart';
+
+import 'models/custom_error.dart';
 
 /// Represents different app environments for configuration management
 ///
