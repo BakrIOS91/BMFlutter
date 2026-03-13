@@ -1,4 +1,4 @@
-/// Result Type for BMFlutter Network Layer
+/// Result Type for LDFlutter Network Layer
 ///
 /// This file provides a comprehensive Result type implementation for handling
 /// operations that can either succeed or fail. It uses the sealed class pattern

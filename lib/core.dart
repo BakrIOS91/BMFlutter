@@ -1,38 +1,59 @@
-// Design system
+/// =======================
+/// DESIGN SYSTEM
+/// =======================
+library;
+
 export 'src/design/typography/app_font_weight.dart';
 export 'src/design/typography/font_helper.dart';
-// Helpers
+
+/// =======================
+/// HELPERS
+/// =======================
+
 export 'src/helpers/device_helper.dart';
 export 'src/helpers/device_security/device_security.dart';
 export 'src/helpers/enums.dart';
+export 'src/helpers/api_error.dart';
+export 'src/helpers/view_state.dart';
+
 export 'src/helpers/language_manager.dart';
 export 'src/helpers/models/custom_error.dart';
 export 'src/helpers/models/downloaded_file.dart';
-export 'src/helpers/network/base_client.dart';
-export 'src/helpers/network/logger.dart';
-export 'src/helpers/network/network_converters.dart';
-export 'src/helpers/network/network_monitor.dart';
-export 'src/helpers/network/network_response.dart';
-export 'src/helpers/network/request_task.dart';
-export 'src/helpers/network/result.dart';
-export 'src/helpers/network/ssl_pinning.dart';
 export 'src/helpers/preferences/annotations.dart';
+
+/// =======================
+/// PREFERENCES
+/// =======================
+
 export 'src/helpers/preferences/base_preferences.dart';
-export 'src/helpers/preferences/preferences_generator.dart';
+
+/// =======================
+/// UI COMPONENTS
+/// =======================
+
 export 'src/helpers/reusable/custom_buttons.dart';
 export 'src/helpers/reusable/empty_bloc_listener.dart';
 export 'src/helpers/reusable/error_view.dart';
 export 'src/helpers/reusable/preferences_listener.dart';
 export 'src/helpers/reusable/underlined_button.dart';
-export 'src/helpers/river_pod/di/di_enums.dart';
-export 'src/helpers/river_pod/di/provider_annotation.dart';
-export 'src/helpers/river_pod/di/provider_config.dart';
-export 'src/helpers/river_pod/di/provider_generator.dart';
-export 'src/helpers/river_pod/reducer/reducer_annotation.dart';
-export 'src/helpers/river_pod/reducer/reducer_generator.dart';
-// Network
+
+/// =======================
+/// NETWORK — Core
+/// =======================
+
+export 'src/network/core/logger.dart';
+export 'src/network/core/network_monitor.dart';
+export 'src/network/core/network_response.dart';
+export 'src/network/core/request_task.dart';
+export 'src/network/core/result.dart';
+export 'src/network/core/ssl_pinning.dart';
 export 'src/network/perform_async.dart';
 export 'src/network/perform_result.dart';
+
+/// =======================
+/// NETWORK — High Level
+/// =======================
+
 export 'src/network/request.dart';
 export 'src/network/target.dart';
 export 'src/network/target_request.dart';

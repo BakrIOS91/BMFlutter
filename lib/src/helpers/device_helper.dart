@@ -1,4 +1,4 @@
-/// Device Helper for BMFlutter Design System
+/// Device Helper for LDFlutter Design System
 ///
 /// This file provides device-specific utilities for responsive design,
 /// particularly for calculating scaling factors based on screen dimensions.
@@ -41,7 +41,8 @@ class DeviceHelper {
   /// Returns a double scaling factor between 0.9 and 1.1
   static double getScalingFactor(BuildContext context) {
     // Get current screen width from MediaQuery
-    final screenWidth = MediaQuery.of(context).size.width;
+    final mediaQuery = MediaQuery.maybeOf(context);
+    final screenWidth = mediaQuery?.size.width ?? 440.0;
 
     // Reference width (can adjust for different baselines)
     // This represents the baseline device width for scaling calculations

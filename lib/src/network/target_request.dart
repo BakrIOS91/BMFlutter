@@ -1,12 +1,12 @@
-/// Target Request Protocol for BMFlutter Network Layer
+/// Target Request Protocol for LDFlutter Network Layer
 ///
 /// This file defines the TargetRequest abstract class that serves as the core
-/// protocol for all network requests in the BMFlutter network layer. It provides
-/// a standardized interface for configuring network requests with headers,
+/// protocol for all core requests in the LDFlutter core layer. It provides
+/// a standardized interface for configuring core requests with headers,
 /// authentication, SSL pinning, and request tasks.
 ///
 /// The protocol is inspired by Swift's TargetRequest pattern and provides
-/// a type-safe way to define network endpoints with their associated
+/// a type-safe way to define core endpoints with their associated
 /// configuration. It supports both simple success-only requests and
 /// model-based requests that return decoded data.
 ///
@@ -26,26 +26,27 @@
 library;
 
 import 'package:bmflutter/src/helpers/enums.dart';
-import 'package:bmflutter/src/helpers/network/network_monitor.dart';
-import 'package:bmflutter/src/helpers/network/request_task.dart';
-import 'package:bmflutter/src/helpers/network/ssl_pinning.dart';
 
-/// Defines the required properties for a target network request
+import 'core/network_monitor.dart';
+import 'core/request_task.dart';
+import 'core/ssl_pinning.dart';
+
+/// Defines the required properties for a target core request
 ///
-/// This abstract class serves as the core protocol for all network requests,
-/// providing a standardized interface for configuring network endpoints.
+/// This abstract class serves as the core protocol for all core requests,
+/// providing a standardized interface for configuring core endpoints.
 /// It's equivalent to Swift's TargetRequest protocol and ensures type safety
-/// and consistency across all network operations.
+/// and consistency across all core operations.
 abstract class TargetRequest {
   /// The type of request (REST or SOAP)
   ///
-  /// This property defines the protocol type for the network request.
+  /// This property defines the protocol type for the core request.
   /// Currently supports REST and SOAP protocols, with REST being the default.
   RequestType get requestType;
 
   /// The base URL for the request
   ///
-  /// This property defines the base URL that will be used for the network request.
+  /// This property defines the base URL that will be used for the core request.
   /// It should include the protocol (http/https) and hostname, but not the specific
   /// endpoint path which is defined separately in requestPath.
   String get baseURL;
@@ -100,6 +101,13 @@ abstract class TargetRequest {
   /// Returns the SSL pinning configuration or null if not specified
   SSLPinningConfiguration? get sslPinningConfiguration;
 
+  /// Whether to use a unique filename for downloads.
+  ///
+  /// When `true`, [performDownload] will prepend a unique identifier
+  /// (timestamp + hashCode) to the filename to prevent overwrites.
+  /// Defaults to `false`.
+  bool get useUniqueFilename => false;
+
   /// Merged headers including defaults
   ///
   /// This computed property combines all headers in the correct order:
@@ -122,19 +130,19 @@ abstract class TargetRequest {
   /// Default headers applied to all requests
   ///
   /// This property defines the default HTTP headers that are applied
-  /// to all network requests. These headers provide sensible defaults
+  /// to all core requests. These headers provide sensible defaults
   /// for content type and acceptance, but can be overridden by
   /// standard or auth headers.
   ///
   /// Returns a Map containing default headers
   Map<String, String> get defaultHeaders => {
-    'Content-Type': 'application/json',
-    'Accept': '*/*',
-  };
+        'Content-Type': 'application/json',
+        'Accept': '*/*',
+      };
 
   /// Checks if the device is connected to the internet
   ///
-  /// This static method provides a convenient way to check network
+  /// This static method provides a convenient way to check core
   /// connectivity before making requests. It uses the NetworkMonitor
   /// to determine if the device has an active internet connection.
   ///
@@ -147,7 +155,7 @@ abstract class TargetRequest {
   ///
   /// This method provides a descriptive string representation of the
   /// current request task configuration. It's useful for logging,
-  /// debugging, and monitoring network requests.
+  /// debugging, and monitoring core requests.
   ///
   /// Returns a descriptive string of the request task
   String get requestTaskDescription {
@@ -177,7 +185,7 @@ abstract class TargetRequest {
 /// updating, or deleting resources where you only care about success/failure.
 ///
 /// The class provides sensible defaults for all required properties,
-/// making it easy to create simple network requests without extensive configuration.
+/// making it easy to create simple core requests without extensive configuration.
 abstract class SuccessTargetType extends TargetRequest {
   /// Always returns REST for success-only requests
   @override
@@ -214,6 +222,11 @@ abstract class SuccessTargetType extends TargetRequest {
 /// The generic type T represents the expected response model type.
 /// The class provides sensible defaults while allowing for customization.
 abstract class ModelTargetType<T> extends TargetRequest {
+  /// Optional decoder function for manual JSON conversion.
+  final T Function(Map<String, dynamic>)? decoder;
+
+  ModelTargetType({this.decoder});
+
   /// Always returns REST for model-based requests
   @override
   RequestType get requestType => RequestType.rest;
@@ -238,4 +251,17 @@ abstract class ModelTargetType<T> extends TargetRequest {
   /// No SSL pinning by default (can be overridden)
   @override
   SSLPinningConfiguration? get sslPinningConfiguration => null;
+
+  /// Decodes the JSON response into the model type [T].
+  ///
+  /// By default, this uses the [decoder] provided in the constructor.
+  /// Subclasses MUST either provide a decoder or override this method.
+  T fromJson(Map<String, dynamic> json) {
+    if (decoder != null) {
+      return decoder!(json);
+    }
+    throw UnimplementedError(
+      'fromJson MUST be overridden or a decoder MUST be provided in the constructor for ModelTargetType<$T>',
+    );
+  }
 }

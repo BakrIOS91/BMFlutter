@@ -1,4 +1,4 @@
-/// Network Logger for BMFlutter Network Layer
+/// Network Logger for LDFlutter Network Layer
 ///
 /// This file provides comprehensive logging functionality for HTTP requests
 /// and responses. It includes formatted output, JSON pretty-printing, and
@@ -89,10 +89,10 @@ class Logger {
         } catch (_) {
           bodyStr = body; // invalid JSON, just print string
         }
-      } else if (body is Map || body is List) {
-        bodyStr = _prettyPrintJson(body);
       } else if (body is Uint8List) {
         bodyStr = _prettyPrintBody(body);
+      } else if (body is Map || body is List) {
+        bodyStr = _prettyPrintJson(body);
       } else {
         bodyStr = body.toString();
       }

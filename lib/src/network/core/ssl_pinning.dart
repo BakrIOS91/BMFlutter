@@ -1,7 +1,7 @@
-/// SSL/TLS Pinning for BMFlutter Network Layer
+/// SSL/TLS Pinning for LDFlutter Network Layer
 ///
 /// This file provides comprehensive SSL/TLS certificate pinning functionality
-/// for enhanced security in network communications. It supports both certificate
+/// for enhanced security in core communications. It supports both certificate
 /// pinning and public key pinning with configurable fallback options.
 ///
 /// SSL pinning helps prevent man-in-the-middle attacks by validating that
@@ -35,7 +35,7 @@ import 'package:pointycastle/asn1.dart';
 /// This class encapsulates all the configuration options for SSL pinning,
 /// including which hosts to pin, certificate paths, public key hashes,
 /// and fallback behavior. It provides a centralized way to configure
-/// security settings for the network layer.
+/// security settings for the core layer.
 class SSLPinningConfiguration {
   /// Whether SSL pinning is enabled
   final bool isEnabled;

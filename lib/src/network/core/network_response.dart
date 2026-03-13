@@ -1,4 +1,4 @@
-/// Network Response Wrapper for BMFlutter Network Layer
+/// Network Response Wrapper for LDFlutter Network Layer
 ///
 /// This file defines a NetworkResponse model that wraps decoded response data
 /// along with response headers and cookies. It enables callers to access

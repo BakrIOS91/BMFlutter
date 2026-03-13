@@ -28,17 +28,14 @@ class AppCupertinoButton {
   }) {
     final scale = DeviceHelper.getScalingFactor(context);
 
-    final effectiveBackground = isDisabled
-        ? Colors.grey.shade300
-        : backgroundColor ?? Colors.white;
+    final effectiveBackground =
+        isDisabled ? Colors.grey.shade300 : backgroundColor ?? Colors.white;
 
-    final effectiveTitleStyle = isDisabled
-        ? titleStyle?.copyWith(color: Colors.grey)
-        : titleStyle;
+    final effectiveTitleStyle =
+        isDisabled ? titleStyle?.copyWith(color: Colors.grey) : titleStyle;
 
-    final effectiveIconColor = isDisabled
-        ? Colors.grey
-        : iconColor ?? titleStyle?.color;
+    final effectiveIconColor =
+        isDisabled ? Colors.grey : iconColor ?? titleStyle?.color;
 
     return CupertinoButton(
       padding: EdgeInsets.zero,
@@ -108,21 +105,18 @@ class AppCupertinoButton {
   }) {
     final scale = DeviceHelper.getScalingFactor(context);
 
-    final effectiveBorder = isDisabled
-        ? Colors.grey.shade400
-        : borderColor ?? Colors.black;
+    final effectiveBorder =
+        isDisabled ? Colors.grey.shade400 : borderColor ?? Colors.black;
 
     final effectiveBackground = isDisabled
         ? Colors.grey.withValues(alpha: 0.1)
         : backgroundColor?.withValues(alpha: backgroundOpacity);
 
-    final effectiveTitleStyle = isDisabled
-        ? titleStyle?.copyWith(color: Colors.grey)
-        : titleStyle;
+    final effectiveTitleStyle =
+        isDisabled ? titleStyle?.copyWith(color: Colors.grey) : titleStyle;
 
-    final effectiveIconColor = isDisabled
-        ? Colors.grey
-        : iconColor ?? titleStyle?.color;
+    final effectiveIconColor =
+        isDisabled ? Colors.grey : iconColor ?? titleStyle?.color;
 
     return CupertinoButton(
       padding: EdgeInsets.zero,

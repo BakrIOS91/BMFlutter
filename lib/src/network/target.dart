@@ -1,11 +1,11 @@
-/// Network Target Configuration for BMFlutter Network Layer
+/// Network Target Configuration for LDFlutter Network Layer
 ///
 /// This file defines the Target abstract class that provides a protocol-based
-/// approach to configuring network endpoints for different environments.
+/// approach to configuring core endpoints for different environments.
 /// It allows for easy switching between development, staging, and production
 /// environments with different API endpoints and configurations.
 ///
-/// The Target protocol ensures that all network requests have consistent
+/// The Target protocol ensures that all core requests have consistent
 /// base URL configuration while allowing for environment-specific customization.
 /// It supports different schemes, hosts, ports, and API paths for various
 /// deployment scenarios.
@@ -13,9 +13,9 @@ library;
 
 import 'package:bmflutter/src/helpers/enums.dart';
 
-/// Represents a target configuration for network requests
+/// Represents a target configuration for core requests
 ///
-/// This abstract class defines the protocol for configuring network endpoints
+/// This abstract class defines the protocol for configuring core endpoints
 /// across different environments. It provides a standardized way to configure
 /// API endpoints, schemes, hosts, and paths for various deployment scenarios.
 ///
@@ -60,9 +60,8 @@ abstract class Target {
       pathSegments.add(kMainAPIPath!.replaceAll(RegExp(r'^/+|/+$'), ''));
     }
 
-    final combinedPath = pathSegments.isNotEmpty
-        ? '/${pathSegments.join('/')}'
-        : '/';
+    final combinedPath =
+        pathSegments.isNotEmpty ? '/${pathSegments.join('/')}' : '/';
 
     return Uri(
       scheme: kAppScheme,

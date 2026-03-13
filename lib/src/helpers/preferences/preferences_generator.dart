@@ -323,7 +323,7 @@ class PreferencesGenerator extends GeneratorForAnnotation<GeneratePreferences> {
   /// Bridge to the SourceGen annotation scanner.
   ConstantReader? _getAnnotation(Element element, String name) {
     final checker = TypeChecker.fromUrl(
-      'package:bmflutter/src/helpers/preferences/annotations.dart#$name',
+      'package:ld_flutter/src/helpers/preferences/annotations.dart#$name',
     );
     final annotation = checker.firstAnnotationOf(element);
     return annotation != null ? ConstantReader(annotation) : null;

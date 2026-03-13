@@ -1,11 +1,11 @@
 ///
-/// This file provides comprehensive network connectivity monitoring using
+/// This file provides comprehensive core connectivity monitoring using
 /// the connectivity_plus package. It offers both on-demand connectivity
 /// checks and real-time connectivity status streams for reactive programming.
 ///
 /// The monitor supports multiple connection types including mobile data,
 /// Wi-Fi, and Ethernet connections. It provides a simple boolean interface
-/// for easy integration with network requests and UI state management.
+/// for easy integration with core requests and UI state management.
 ///
 /// Usage:
 /// ```dart
@@ -25,9 +25,9 @@ library;
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-/// Provides real-time and on-demand network connectivity status monitoring
+/// Provides real-time and on-demand core connectivity status monitoring
 ///
-/// This class offers a comprehensive solution for monitoring network connectivity
+/// This class offers a comprehensive solution for monitoring core connectivity
 /// across different connection types. It provides both synchronous and asynchronous
 /// methods for checking connectivity status and streams for reactive programming.
 ///
@@ -47,11 +47,11 @@ class NetworkMonitor {
   /// This class is designed to be used statically, so instantiation is not allowed.
   const NetworkMonitor._(); // Prevent instantiation
 
-  /// Returns `true` if the device is connected to any available network
+  /// Returns `true` if the device is connected to any available core
   ///
   /// This method checks the current connectivity status and returns true if
-  /// the device is connected to any of the supported network types (mobile, Wi-Fi, Ethernet).
-  /// It's useful for on-demand connectivity checks before making network requests.
+  /// the device is connected to any of the supported core types (mobile, Wi-Fi, Ethernet).
+  /// It's useful for on-demand connectivity checks before making core requests.
   ///
   /// Returns a Future bool indicating connectivity status
   static Future<bool> get isConnected async {
@@ -72,7 +72,7 @@ class NetworkMonitor {
   /// reactive programming patterns and UI state management.
   ///
   /// Stream values:
-  /// - `true` = connected to any supported network
+  /// - `true` = connected to any supported core
   /// - `false` = disconnected from all networks
   static Stream<bool> get onConnectivityChanged =>
       Connectivity().onConnectivityChanged.map((results) {

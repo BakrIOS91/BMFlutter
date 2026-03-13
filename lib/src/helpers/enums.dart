@@ -1,11 +1,11 @@
-/// Enums and Constants for BMFlutter Network Layer
+/// Enums and Constants for LDFlutter Network Layer
 ///
 /// This file contains all the enumerations, constants, and error types used
-/// throughout the BMFlutter network layer. It provides type-safe definitions
+/// throughout the LDFlutter core layer. It provides type-safe definitions
 /// for HTTP methods, status codes, request types, error categories, and
 /// multipart form data handling.
 ///
-/// The enums are designed to be comprehensive and cover all common network
+/// The enums are designed to be comprehensive and cover all common core
 /// scenarios, from basic HTTP requests to complex file uploads and downloads.
 /// Error handling is built into the enums with descriptive error messages
 /// and proper categorization.
@@ -14,15 +14,12 @@
 /// ```dart
 /// final method = HTTPMethod.post;
 /// final status = HTTPStatusCode.from(200);
-/// final error = APIError(APIErrorType.noNetwork);
 /// ```
 library;
 
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-
-import 'models/custom_error.dart';
 
 /// Represents different app environments for configuration management
 ///
@@ -77,9 +74,9 @@ extension AppEnvironmentEnv on AppEnvironment {
   }
 }
 
-/// Represents the type of network request protocol
+/// Represents the type of core request protocol
 ///
-/// This enum defines the supported network request types, allowing the
+/// This enum defines the supported core request types, allowing the
 /// system to handle different API protocols with appropriate configurations.
 enum RequestType {
   /// REST API requests using standard HTTP methods
@@ -187,11 +184,11 @@ class MultipartFormDataText extends MultipartFormData {
   const MultipartFormDataText(this.value);
 }
 
-/// Represents different types of network request tasks
+/// Represents different types of core request tasks
 ///
-/// This enum defines the various types of network operations that can be
+/// This enum defines the various types of core operations that can be
 /// performed, from simple requests to complex file uploads and downloads.
-/// Each task type has specific handling logic in the network layer.
+/// Each task type has specific handling logic in the core layer.
 enum RequestTaskType {
   /// Plain request with no additional data
   plain,
@@ -279,298 +276,89 @@ enum HTTPStatusCode {
   }
 }
 
-/// Enum representing API error categories for comprehensive error handling
-///
-/// This enum defines all possible error types that can occur during
-/// network operations. Each error type has a specific meaning and
-/// corresponding error message for better debugging and user feedback.
-enum APIErrorType {
-  /// Invalid URL formation or parsing error
-  invalidURL,
-
-  /// Failed to convert data to expected format
-  dataConversionFailed,
-
-  /// Failed to convert string data
-  stringConversionFailed,
-
-  /// HTTP protocol error with status code
-  httpError,
-
-  /// Invalid SOAP multipart request format
-  invalidSoapMultipartRequest,
-
-  /// XML encoding/decoding failure
-  xmlEncodingFailed,
-
-  /// SOAP operation not supported by the system
-  notSupportedSOAPOperation,
-
-  /// No internet connection available
-  noNetwork,
-
-  /// Invalid or malformed response from server
-  invalidResponse,
-}
-
-/// Represents different types of network-related errors with detailed information
-///
-/// This class provides a comprehensive error handling system for network operations.
-/// It includes the error type, optional status code, and human-readable error messages.
-/// The class implements the Exception interface for proper error propagation.
-class APIError implements Exception {
-  /// The type of error that occurred
-  final APIErrorType type;
-
-  /// Optional HTTP status code associated with the error
-  final HTTPStatusCode? statusCode;
-
-  /// Creates a new APIError instance
-  ///
-  /// Parameters:
-  /// - [type]: The type of error that occurred
-  /// - [statusCode]: Optional HTTP status code (default: null)
-  const APIError(this.type, {this.statusCode});
-
-  /// Returns a human-readable error message
-  ///
-  /// This method provides descriptive error messages for each error type,
-  /// making it easier to debug issues and provide user feedback.
-  @override
-  String toString() {
-    switch (type) {
-      case APIErrorType.invalidURL:
-        return 'Invalid URL formation.';
-      case APIErrorType.dataConversionFailed:
-        return 'Failed to convert data.';
-      case APIErrorType.stringConversionFailed:
-        return 'Failed to convert string.';
-      case APIErrorType.httpError:
-        return 'HTTP Error with status code: $statusCode';
-      case APIErrorType.invalidSoapMultipartRequest:
-        return 'Invalid SOAP multipart request.';
-      case APIErrorType.xmlEncodingFailed:
-        return 'XML encoding failed.';
-      case APIErrorType.notSupportedSOAPOperation:
-        return 'SOAP operation not supported.';
-      case APIErrorType.noNetwork:
-        return 'No internet connection.';
-      case APIErrorType.invalidResponse:
-        return 'Invalid response.';
-    }
-  }
-}
-
-/// ViewState
-sealed class ViewState {
-  const ViewState();
-
-  /// Indicates whether this state represents an error
-  bool get isError;
-
-  /// Equivalent to Swift’s `static func failHandler`
-  ///
-  /// Converts an [APIError] into a corresponding [ViewState].
-  static ViewState failHandler(APIError apiError) {
-    switch (apiError.type) {
-      case APIErrorType.invalidURL:
-      case APIErrorType.dataConversionFailed:
-      case APIErrorType.stringConversionFailed:
-      case APIErrorType.invalidSoapMultipartRequest:
-      case APIErrorType.xmlEncodingFailed:
-      case APIErrorType.notSupportedSOAPOperation:
-      case APIErrorType.invalidResponse:
-        return unexpectedError;
-
-      case APIErrorType.noNetwork:
-        return noNetwork;
-
-      case APIErrorType.httpError:
-        final status = apiError.statusCode;
-        switch (status) {
-          case HTTPStatusCode.notAuthorize:
-            return unauthorized;
-          case HTTPStatusCode.notFound:
-            return const NoData();
-          case HTTPStatusCode.serverError:
-            return serverError;
-          default:
-            return unexpectedError;
-        }
-    }
-  }
-
-  static const loading = Loading();
-  static const overlayLoading = OverlayLoading();
-  static const loaded = Loaded();
-  static const noNetwork = NoNetwork();
-  static const noData = NoData();
-  static const serverError = ServerError();
-  static const unexpectedError = UnexpectedError();
-  static const unauthorized = Unauthorized();
-  static const forceUpdate = ForceUpdateError();
-  static const jailBroken = JailBroken();
-  static const searchError = SearchError();
-}
-
-// Non-error states
-final class Loading extends ViewState {
-  const Loading();
-  @override
-  bool get isError => false;
-}
-
-final class OverlayLoading extends ViewState {
-  const OverlayLoading();
-  Color get color => Colors.transparent;
-  @override
-  bool get isError => false;
-}
-
-final class Loaded extends ViewState {
-  const Loaded();
-  @override
-  bool get isError => false;
-}
-
-// Error states
-final class NoNetwork extends ViewState {
-  const NoNetwork();
-  @override
-  bool get isError => true;
-}
-
-final class NoData extends ViewState {
-  const NoData();
-  @override
-  bool get isError => true;
-}
-
-final class ServerError extends ViewState {
-  const ServerError();
-  @override
-  bool get isError => true;
-}
-
-final class UnexpectedError extends ViewState {
-  const UnexpectedError();
-  @override
-  bool get isError => true;
-}
-
-final class Unauthorized extends ViewState {
-  const Unauthorized();
-  @override
-  bool get isError => true;
-}
-
-final class CustomState extends ViewState {
-  final CustomError error;
-  const CustomState(this.error);
-  @override
-  bool get isError => true;
-}
-
-final class SearchError extends ViewState {
-  const SearchError();
-  @override
-  bool get isError => true;
-}
-
-final class ForceUpdateError extends ViewState {
-  const ForceUpdateError();
-  @override
-  bool get isError => true;
-}
-
-final class JailBroken extends ViewState {
-  const JailBroken();
-  @override
-  bool get isError => true;
-}
-
 /// Enum for supported locales with their string representations.
 enum SupportedLocale {
   // Arabic
   ar("ar"),
-  ar_AE("ar-AE"), // Arabic (United Arab Emirates)
-  ar_BH("ar-BH"), // Arabic (Bahrain)
-  ar_DZ("ar-DZ"), // Arabic (Algeria)
-  ar_EG("ar-EG"), // Arabic (Egypt)
-  ar_IQ("ar-IQ"), // Arabic (Iraq)
-  ar_JO("ar-JO"), // Arabic (Jordan)
-  ar_KW("ar-KW"), // Arabic (Kuwait)
-  ar_LB("ar-LB"), // Arabic (Lebanon)
-  ar_LY("ar-LY"), // Arabic (Libya)
-  ar_MA("ar-MA"), // Arabic (Morocco)
-  ar_OM("ar-OM"), // Arabic (Oman)
-  ar_QA("ar-QA"), // Arabic (Qatar)
-  ar_SA("ar-SA"), // Arabic (Saudi Arabia)
-  ar_SD("ar-SD"), // Arabic (Sudan)
-  ar_SY("ar-SY"), // Arabic (Syria)
-  ar_TN("ar-TN"), // Arabic (Tunisia)
-  ar_YE("ar-YE"), // Arabic (Yemen)
+  arAE("ar_AE"), // Arabic (United Arab Emirates)
+  arBH("ar_BH"), // Arabic (Bahrain)
+  arDZ("ar_DZ"), // Arabic (Algeria)
+  arEG("ar_EG"), // Arabic (Egypt)
+  arIQ("ar_IQ"), // Arabic (Iraq)
+  arJO("ar_JO"), // Arabic (Jordan)
+  arKW("ar_KW"), // Arabic (Kuwait)
+  arLB("ar_LB"), // Arabic (Lebanon)
+  arLY("ar_LY"), // Arabic (Libya)
+  arMA("ar_MA"), // Arabic (Morocco)
+  arOM("ar_OM"), // Arabic (Oman)
+  arQA("ar_QA"), // Arabic (Qatar)
+  arSA("ar_SA"), // Arabic (Saudi Arabia)
+  arSD("ar_SD"), // Arabic (Sudan)
+  arSY("ar_SY"), // Arabic (Syria)
+  arTN("ar_TN"), // Arabic (Tunisia)
+  arYE("ar_YE"), // Arabic (Yemen)
 
   // English
   en("en"),
-  en_AU("en-AU"), // English (Australia)
-  en_CA("en-CA"), // English (Canada)
-  en_GB("en-GB"), // English (United Kingdom)
-  en_US("en-US"), // English (United States)
+  enAu("en_AU"), // English (Australia)
+  enCa("en_CA"), // English (Canada)
+  enGb("en_GB"), // English (United Kingdom)
+  enUs("en_US"), // English (United States)
 
   // German
   de("de"),
-  de_DE("de-DE"), // German (Germany)
-  de_AT("de-AT"), // German (Austria)
-  de_CH("de-CH"), // German (Switzerland)
+  deDe("de_DE"), // German (Germany)
+  deAt("de_AT"), // German (Austria)
+  deCh("de_CH"), // German (Switzerland)
 
   // Spanish
   es("es"),
-  es_ES("es-ES"), // Spanish (Spain)
-  es_MX("es-MX"), // Spanish (Mexico)
+  esEs("es_ES"), // Spanish (Spain)
+  esMx("es_MX"), // Spanish (Mexico)
 
   // French
   fr("fr"),
-  fr_CA("fr-CA"), // French (Canada)
-  fr_FR("fr-FR"), // French (France)
+  frCa("fr_CA"), // French (Canada)
+  frFr("fr_FR"), // French (France)
 
   // Other languages
-  ca_ES("ca-ES"), // Catalan (Spain)
-  cs_CZ("cs-CZ"), // Czech (Czech Republic)
-  da_DK("da-DK"), // Danish (Denmark)
-  el_GR("el-GR"), // Greek (Greece)
-  fi_FI("fi-FI"), // Finnish (Finland)
-  hi_IN("hi-IN"), // Hindi (India)
-  hr_HR("hr-HR"), // Croatian (Croatia)
-  hu_HU("hu-HU"), // Hungarian (Hungary)
-  id_ID("id-ID"), // Indonesian (Indonesia)
-  it_IT("it-IT"), // Italian (Italy)
-  ja_JP("ja-JP"), // Japanese (Japan)
-  ko_KR("ko-KR"), // Korean (South Korea)
-  ms_MY("ms-MY"), // Malay (Malaysia)
-  nb_NO("nb-NO"), // Norwegian Bokmål (Norway)
-  nl_NL("nl-NL"), // Dutch (Netherlands)
-  pl_PL("pl-PL"), // Polish (Poland)
-  pt_BR("pt-BR"), // Portuguese (Brazil)
-  pt_PT("pt-PT"), // Portuguese (Portugal)
-  ro_RO("ro-RO"), // Romanian (Romania)
-  ru_RU("ru-RU"), // Russian (Russia)
-  sk_SK("sk-SK"), // Slovak (Slovakia)
-  sv_SE("sv-SE"), // Swedish (Sweden)
-  th_TH("th-TH"), // Thai (Thailand)
-  tr_TR("tr-TR"), // Turkish (Turkey)
-  uk_UA("uk-UA"), // Ukrainian (Ukraine)
-  vi_VN("vi-VN"), // Vietnamese (Vietnam)
-  zh_CN("zh-CN"), // Chinese (China)
-  zh_HK("zh-HK"), // Chinese (Hong Kong)
-  zh_TW("zh-TW"); // Chinese (Taiwan)
+  caEs("ca_ES"), // Catalan (Spain)
+  csCz("cs_CZ"), // Czech (Czech Republic)
+  daDk("da_DK"), // Danish (Denmark)
+  elGr("el_GR"), // Greek (Greece)
+  fiFi("fi_FI"), // Finnish (Finland)
+  hiIn("hi_IN"), // Hindi (India)
+  hrHr("hr_HR"), // Croatian (Croatia)
+  huHu("hu_HU"), // Hungarian (Hungary)
+  idId("id_ID"), // Indonesian (Indonesia)
+  itIt("it_IT"), // Italian (Italy)
+  jaJp("ja_JP"), // Japanese (Japan)
+  koKr("ko_KR"), // Korean (South Korea)
+  msMy("ms_MY"), // Malay (Malaysia)
+  nbNo("nb_NO"), // Norwegian Bokmål (Norway)
+  nlNl("nl_NL"), // Dutch (Netherlands)
+  plPl("pl_PL"), // Polish (Poland)
+  ptBr("pt_BR"), // Portuguese (Brazil)
+  ptPt("pt_PT"), // Portuguese (Portugal)
+  roRo("ro_RO"), // Romanian (Romania)
+  ruRu("ru_RU"), // Russian (Russia)
+  skSk("sk_SK"), // Slovak (Slovakia)
+  svSe("sv_SE"), // Swedish (Sweden)
+  thTh("th_TH"), // Thai (Thailand)
+  trTr("tr_TR"), // Turkish (Turkey)
+  ukUa("uk_UA"), // Ukrainian (Ukraine)
+  viVn("vi_VN"), // Vietnamese (Vietnam)
+  zhCn("zh_CN"), // Chinese (China)
+  zhHk("zh_HK"), // Chinese (Hong Kong)
+  zhTw("zh_TW"); // Chinese (Taiwan)
+  // Chinese (Taiwan)
 
   const SupportedLocale(this.rawValue);
   final String rawValue;
 
   /// Returns the `Locale` object corresponding to the supported locale.
   Locale get locale {
-    final parts = rawValue.split('-');
+    final parts = rawValue.split('_');
     if (parts.length == 2) {
       return Locale(parts[0], parts[1]);
     }

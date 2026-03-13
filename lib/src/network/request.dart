@@ -1,4 +1,4 @@
-/// HTTP Request Creation for BMFlutter Network Layer
+/// HTTP Request Creation for LDFlutter Network Layer
 ///
 /// This file provides the Request extension for TargetRequest that handles
 /// the creation and configuration of HTTP requests. It supports various
@@ -19,14 +19,14 @@ library;
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:bmflutter/core.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:bmflutter/core.dart';
 
 /// Extension to create HTTP requests from TargetRequest configurations
 ///
 /// This extension provides methods for converting TargetRequest instances
-/// into actual HTTP requests that can be sent over the network. It handles
+/// into actual HTTP requests that can be sent over the core. It handles
 /// all the complexity of URL construction, header merging, and body encoding.
 extension Request on TargetRequest {
   /// Creates an `http.Request` based on the specified `TargetRequest` and current `Task`
@@ -41,15 +41,7 @@ extension Request on TargetRequest {
   Future<http.BaseRequest> createRequest() async {
     try {
       // Validate and construct URL
-      final fullUrl = baseURL + requestPath;
-      if (fullUrl.isEmpty) {
-        throw const APIError(APIErrorType.invalidURL);
-      }
-
-      final url = Uri.tryParse(fullUrl);
-      if (url == null) {
-        throw const APIError(APIErrorType.invalidURL);
-      }
+      final url = Uri.parse(baseURL).resolve(requestPath);
 
       // Create request with method and headers
       final request = http.Request(requestMethod.value, url);
@@ -80,11 +72,6 @@ extension Request on TargetRequest {
   Future<http.BaseRequest> _configureRESTRequest(http.Request request) async {
     switch (requestTask.type) {
       case RequestTaskType.plain:
-        Logger.logRequest(
-          method: request.method,
-          url: request.url,
-          headers: request.headers,
-        );
         return request;
 
       case RequestTaskType.download:
@@ -97,20 +84,9 @@ extension Request on TargetRequest {
           final newReq = http.Request(request.method, uri)
             ..headers.addAll(request.headers);
 
-          Logger.logRequest(
-            method: newReq.method,
-            url: newReq.url,
-            headers: newReq.headers,
-            parameters: params,
-          );
           return newReq;
         }
 
-        Logger.logRequest(
-          method: request.method,
-          url: request.url,
-          headers: request.headers,
-        );
         return request;
 
       case RequestTaskType.encodedBody:
@@ -120,18 +96,9 @@ extension Request on TargetRequest {
             final requestBody = jsonEncode(body);
 
             request.body = requestBody;
-            request.headers['Content-Length'] = utf8
-                .encode(requestBody)
-                .length
-                .toString();
+            request.headers['Content-Length'] =
+                utf8.encode(requestBody).length.toString();
             request.headers['Content-Type'] = 'application/json';
-
-            Logger.logRequest(
-              method: request.method,
-              url: request.url,
-              headers: request.headers,
-              body: requestBody,
-            );
           } catch (_) {
             throw const APIError(APIErrorType.dataConversionFailed);
           }
@@ -146,13 +113,6 @@ extension Request on TargetRequest {
             final bytes = await file.readAsBytes();
             request.bodyBytes = bytes;
             request.headers['Content-Length'] = bytes.length.toString();
-
-            Logger.logRequest(
-              method: request.method,
-              url: request.url,
-              headers: request.headers,
-              body: bytes,
-            );
           } else {
             throw const APIError(APIErrorType.invalidURL);
           }
@@ -185,13 +145,6 @@ extension Request on TargetRequest {
             }
           }
 
-          Logger.logRequest(
-            method: request.method,
-            url: request.url,
-            headers: request.headers,
-            body: multipartRequest.fields,
-          );
-
           return multipartRequest;
         }
 
@@ -202,13 +155,6 @@ extension Request on TargetRequest {
         if (offset != null) {
           request.headers['Range'] = 'bytes=$offset-';
         }
-
-        Logger.logRequest(
-          method: request.method,
-          url: request.url,
-          headers: request.headers,
-          body: request.body,
-        );
 
         return request;
     }

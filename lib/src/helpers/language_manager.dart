@@ -6,7 +6,7 @@ abstract class LanguageManager {
   List<SupportedLocale> get supported => SupportedLocale.values;
 
   /// Default fallback from enum (customizable if needed)
-  SupportedLocale get fallback => SupportedLocale.en_US;
+  SupportedLocale get fallback => SupportedLocale.enUs;
 
   /// Converts enum list → Flutter locales
   List<Locale> get supportedLocales => supported.map((e) => e.locale).toList();

@@ -1,4 +1,4 @@
-/// Downloaded File Model for BMFlutter Network Layer
+/// Downloaded File Model for LDFlutter Network Layer
 ///
 /// This file defines the DownloadedFile model that represents the result
 /// of a file download operation. It contains information about both the

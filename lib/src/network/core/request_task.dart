@@ -1,13 +1,13 @@
-/// Request Task Configuration for BMFlutter Network Layer
+/// Request Task Configuration for LDFlutter Network Layer
 ///
 /// This file defines the RequestTask class that encapsulates different types
-/// of network operations and their associated data. It provides a type-safe
-/// way to configure various network requests including plain requests, file
+/// of core operations and their associated data. It provides a type-safe
+/// way to configure various core requests including plain requests, file
 /// uploads, downloads, and multipart form data.
 ///
 /// The RequestTask uses factory constructors to create specific task types
 /// with their associated data, ensuring type safety and preventing invalid
-/// configurations. Each task type has specific handling logic in the network layer.
+/// configurations. Each task type has specific handling logic in the core layer.
 ///
 /// Usage:
 /// ```dart
@@ -32,11 +32,11 @@ import 'dart:typed_data';
 
 import 'package:bmflutter/src/helpers/enums.dart';
 
-/// Encapsulates different types of network request tasks with associated data
+/// Encapsulates different types of core request tasks with associated data
 ///
-/// This class provides a comprehensive way to configure various network
+/// This class provides a comprehensive way to configure various core
 /// operations through factory constructors. Each task type has specific
-/// associated data that is validated and used by the network layer.
+/// associated data that is validated and used by the core layer.
 class RequestTask {
   /// The type of request task to perform
   final RequestTaskType type;

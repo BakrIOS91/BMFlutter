@@ -1,38 +1,7 @@
-targets:
-  $default:
-    builders:
-      bmflutter|preferencesBuilder:
-        generate_for:
-          - lib/**.dart
-
-      bmflutter|reducerBuilder:
-        generate_for:
-          - lib/**.dart
-
-      bmflutter|providerBuilder:
-        generate_for:
-          - lib/**.dart
-
-
 builders:
-
   preferencesBuilder:
-    import: "package:bmflutter/build.dart"
+    import: "package:ld_flutter/build.dart"
     builder_factories: ["preferencesBuilder"]
-    build_extensions: {".dart": [".preferences.g.dart"]}
-    auto_apply: dependents
-    build_to: source
-
-  reducerBuilder:
-    import: "package:bmflutter/build.dart"
-    builder_factories: ["reducerBuilder"]
-    build_extensions: {".dart": [".reducer.g.dart"]}
-    auto_apply: dependents
-    build_to: source
-
-  providerBuilder:
-    import: "package:bmflutter/build.dart"
-    builder_factories: ["providerBuilder"]
-    build_extensions: {".dart": [".providers.g.dart"]}
+    build_extensions: {".dart": [".pref.g.dart"]}
     auto_apply: dependents
     build_to: source

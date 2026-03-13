@@ -30,34 +30,114 @@ import 'package:bmflutter/src/helpers/device_helper.dart';
 import 'package:flutter/material.dart';
 
 /// ---------------------------------------------------------------------------
-/// Typography Theme Extension
+/// FontKey (sealed class)
 /// ---------------------------------------------------------------------------
 ///
-/// Defines typography tokens (e.g. font family) for the design system
-/// without hard-coupling them to ThemeData.
+/// Represents a type-safe key for font families in the design system.
 ///
-/// Why ThemeExtension?
-/// - Supports runtime updates
-/// - Works with hot reload
-/// - Scales for white-label / multi-client apps
-/// - Keeps design tokens centralized
+/// Purpose:
+/// - Provides predefined font keys (`primary`, `secondary`) for common usage.
+/// - Allows runtime custom font keys using `FontKey.custom('myFont')`.
+/// - Ensures type safety and reduces errors compared to raw strings.
+/// - Works seamlessly with [FontRegistry] and [FontHelper].
 ///
-@immutable
-class AppTypography extends ThemeExtension<AppTypography> {
-  /// Primary font family used by the design system
-  final String fontFamily;
+/// Usage:
+/// ```dart
+/// // Predefined fonts
+/// final primaryKey = FontKey.primary;
+/// final secondaryKey = FontKey.secondary;
+///
+/// // Custom font key
+/// final customKey = FontKey.custom('brandX');
+/// ```
+abstract class FontKey {
+  const FontKey._();
 
-  const AppTypography({required this.fontFamily});
+  /// Predefined primary font
+  static const primary = _PredefinedKey._('primary');
 
+  /// Predefined secondary font
+  static const secondary = _PredefinedKey._('secondary');
+
+  /// Custom font key for runtime fonts
+  factory FontKey.custom(String key) = _CustomKey;
+
+  /// Internal string representation of the key
+  String get key;
+}
+
+/// Private class for predefined keys
+class _PredefinedKey extends FontKey {
+  final String _key;
+  const _PredefinedKey._(this._key) : super._();
   @override
-  AppTypography copyWith({String? fontFamily}) {
-    return AppTypography(fontFamily: fontFamily ?? this.fontFamily);
+  String get key => _key;
+}
+
+/// Private class for custom keys
+class _CustomKey extends FontKey {
+  final String _key;
+  _CustomKey(this._key) : super._();
+  @override
+  String get key => _key;
+}
+
+/// ---------------------------------------------------------------------------
+/// FontRegistry
+/// ---------------------------------------------------------------------------
+///
+/// Centralized registry for managing multiple font families in a Flutter
+/// design system package.
+///
+/// Purpose:
+/// - Allows any host project to "register" one or more font families by key.
+/// - Ensures that [FontHelper] can access the correct font at runtime
+///   without hardcoding font names in the package.
+/// - Fully reusable in multi-brand, multi-client, or white-label applications.
+///
+/// Features:
+/// - Supports registering multiple fonts using [FontKey] (predefined or custom).
+/// - Throws a descriptive exception if a requested font key is not registered,
+///   preventing silent fallback to the system font.
+/// - Works seamlessly with [FontHelper], [AppTextStyles], and other typography
+///   helpers to provide consistent, scalable, theme-driven text styling.
+///
+/// Usage:
+/// ```dart
+/// // Register fonts once at app startup
+/// FontRegistry.instance.registerFont(FontKey.primary, 'Inter');
+/// FontRegistry.instance.registerFont(FontKey.secondary, 'Roboto');
+/// FontRegistry.instance.registerFont(FontKey.custom('brandX'), 'CustomFont');
+///
+/// // Retrieve a font in FontHelper or any typography helper
+/// final primaryFont = FontRegistry.instance.getFont(FontKey.primary);
+/// final secondaryFont = FontRegistry.instance.getFont(FontKey.secondary);
+/// final brandXFont = FontRegistry.instance.getFont(FontKey.custom('brandX'));
+/// ```
+///
+/// Notes:
+/// - Designed for packages or libraries where font names cannot be hardcoded.
+/// - Enables consistent typography across all screens and widgets.
+/// - Works with scaling, line height, and font weight abstractions when used
+///   with [FontHelper].
+class FontRegistry {
+  FontRegistry._();
+  static final FontRegistry instance = FontRegistry._();
+
+  final Map<String, String> _fonts = {}; // key string → font family
+
+  /// Register a font family with a [FontKey]
+  void registerFont(FontKey key, String fontFamily) {
+    _fonts[key.key] = fontFamily;
   }
 
-  @override
-  AppTypography lerp(ThemeExtension<AppTypography>? other, double t) {
-    if (other is! AppTypography) return this;
-    return AppTypography(fontFamily: fontFamily);
+  /// Retrieve a font family by [FontKey]
+  String getFont(FontKey key) {
+    final font = _fonts[key.key];
+    if (font == null) {
+      throw Exception('Font for key "${key.key}" is not registered!');
+    }
+    return font;
   }
 }
 
@@ -101,6 +181,7 @@ class FontHelper {
     FontWeightProtocol weight = const _DefaultFontWeight(),
     Color color = Colors.black,
     double? lineHeight,
+    FontKey fontKey = FontKey.primary,
   }) {
     // -----------------------------------------------------------------------
     // Responsive scaling
@@ -121,11 +202,10 @@ class FontHelper {
     // -----------------------------------------------------------------------
     // Resolve font family from typography theme extension
     // -----------------------------------------------------------------------
-    final typography = Theme.of(context).extension<AppTypography>();
-    final fontFamily = typography?.fontFamily;
+    final fontFamily = FontRegistry.instance.getFont(fontKey);
 
     return TextStyle(
-      inherit: false, // Prevents theme/default overrides
+      inherit: true, // Allows theme/default overrides and safer merging
       fontFamily: fontFamily,
       fontSize: scaledSize,
       fontWeight: fontWeight,

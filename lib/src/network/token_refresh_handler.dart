@@ -1,4 +1,4 @@
-/// Token Refresh Handler for BMFlutter Network Layer
+/// Token Refresh Handler for LDFlutter Network Layer
 ///
 /// Provides automatic token refresh when a 401 Unauthorized response is
 /// received on an authorized request. A Completer-based mutex ensures that
@@ -28,6 +28,9 @@ library;
 
 import 'dart:async';
 
+import 'package:bmflutter/src/helpers/api_error.dart';
+import 'package:bmflutter/src/helpers/enums.dart';
+
 /// Abstract interface that the host app implements to provide token-refresh logic.
 ///
 /// The implementation should:
@@ -54,7 +57,7 @@ class TokenRefreshRegistry {
   static TokenRefreshHandler? _handler;
 
   /// In-flight refresh completer. Non-null while a refresh is running.
-  static Completer<bool>? _refreshCompleter;
+  static Completer<void>? _refreshCompleter;
 
   /// Registers the [TokenRefreshHandler] to use for token refresh.
   ///
@@ -73,31 +76,41 @@ class TokenRefreshRegistry {
 
   /// Attempts a token refresh, ensuring only one refresh runs at a time.
   ///
-  /// - If no handler is registered, returns `false` immediately.
-  /// - If a refresh is already in-flight, awaits and returns its result.
-  /// - Otherwise, owns the refresh, completes the mutex, and resets it.
-  static Future<bool> attemptRefresh() async {
+  /// - If no handler is registered, throws an error.
+  /// - If a refresh is already in-flight, awaits its completion.
+  /// - Otherwise, initiates the refresh, completes the mutex, and resets it.
+  static Future<void> refreshToken() async {
     // No handler registered — token refresh not supported by this app.
-    if (_handler == null) return false;
+    if (_handler == null) {
+      throw const APIError(APIErrorType.httpError,
+          statusCode: HTTPStatusCode.notAuthorize);
+    }
 
-    // A refresh is already running — wait for it and share the result.
+    // A refresh is already running — wait for it.
     if (_refreshCompleter != null) {
       return _refreshCompleter!.future;
     }
 
     // We are the first caller — own the refresh.
-    _refreshCompleter = Completer<bool>();
+    _refreshCompleter = Completer<void>();
     try {
-      final result = await _handler!.refreshToken();
-      _refreshCompleter!.complete(result);
-      return result;
-    } catch (_) {
-      // Treat any unexpected exception as a failed refresh.
-      _refreshCompleter!.complete(false);
-      return false;
+      await _doRefresh();
+      _refreshCompleter!.complete();
+    } catch (e) {
+      _refreshCompleter!.completeError(e);
+      rethrow;
     } finally {
       // Reset so future 401s (after a successful refresh) can refresh again.
       _refreshCompleter = null;
+    }
+  }
+
+  /// Internal method to execute the actual refresh logic using the handler.
+  static Future<void> _doRefresh() async {
+    final success = await _handler?.refreshToken();
+    if (success != true) {
+      throw const APIError(APIErrorType.httpError,
+          statusCode: HTTPStatusCode.notAuthorize);
     }
   }
 }
