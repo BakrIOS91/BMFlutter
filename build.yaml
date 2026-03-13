@@ -1,6 +1,6 @@
 builders:
   preferencesBuilder:
-    import: "package:ld_flutter/build.dart"
+    import: "package:bmflutter/build.dart"
     builder_factories: ["preferencesBuilder"]
     build_extensions: {".dart": [".pref.g.dart"]}
     auto_apply: dependents
