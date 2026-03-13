@@ -1,6 +1,6 @@
 /// --- PREFERENCE SYSTEM ANNOTATIONS ---
 ///
-/// This library defines the meta-programming contract for the `LDFlutter`
+/// This library defines the meta-programming contract for the `BMFlutter`
 /// preference system. It enables automated generation of type-safe, reactive,
 /// and persistent storage classes.
 ///

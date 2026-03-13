@@ -3,5 +3,5 @@ builders:
     import: "package:bmflutter/build.dart"
     builder_factories: ["preferencesBuilder"]
     build_extensions: {".dart": [".pref.g.dart"]}
-    auto_apply: dependents
+    auto_apply: root_package
     build_to: source
