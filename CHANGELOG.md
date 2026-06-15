@@ -1,3 +1,9 @@
+## 0.1.4
+
+- Added full platform support (Android, iOS, web, macOS, Windows, Linux).
+- Used conditional imports to isolate `jailbreak_root_detection` and `root_jailbreak_sniffer` to mobile-only compile paths; web and desktop use a lightweight stub.
+- Declared `platforms:` in pubspec.yaml to make platform support explicit on pub.dev.
+
 ## 0.1.3
 
 - Added example app for pub.dev scoring.

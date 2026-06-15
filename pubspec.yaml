@@ -1,7 +1,15 @@
 name: bm_flutter
 description: "A Flutter toolkit providing annotation-driven preferences code generation, device security utilities, and reusable UI components."
-version: 0.1.3
+version: 0.1.4
 homepage: "https://github.com/BakrIOS91/BMFlutter"
+
+platforms:
+  android:
+  ios:
+  web:
+  linux:
+  macos:
+  windows:
 
 environment:
   sdk: ">=3.6.0 <4.0.0"
