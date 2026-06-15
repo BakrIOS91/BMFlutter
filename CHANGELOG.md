@@ -1,3 +1,8 @@
+## 0.1.5
+
+- Fixed WASM compatibility: moved builder implementation from `lib/build.dart` to `lib/src/builder.dart` so pana no longer flags `analyzer`/`source_gen` (build-time-only deps) as WASM incompatible for the runtime library.
+- Updated `build.yaml` import to `package:bm_flutter/src/builder.dart`.
+
 ## 0.1.4
 
 - Added full platform support (Android, iOS, web, macOS, Windows, Linux).

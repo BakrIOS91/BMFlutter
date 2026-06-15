@@ -1,8 +1,6 @@
-import 'package:build/build.dart';
-import 'package:source_gen/source_gen.dart';
-
-import 'src/helpers/preferences/preferences_generator.dart';
-
-/// Preferences builder
-Builder preferencesBuilder(BuilderOptions options) =>
-    PartBuilder([PreferencesGenerator()], '.pref.g.dart');
+/// Builder entry point — see build.yaml.
+///
+/// The builder implementation lives in `lib/src/builder.dart` and is
+/// registered automatically by build_runner via build.yaml.
+/// You do not need to import this library directly.
+library;
