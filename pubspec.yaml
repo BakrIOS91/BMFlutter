@@ -1,0 +1,38 @@
+name: bm_flutter
+description: "A Flutter toolkit providing annotation-driven preferences code generation, device security utilities, and reusable UI components."
+version: 0.1.2
+homepage: "https://github.com/BakrIOS91/BMFlutter"
+
+environment:
+  sdk: ">=3.6.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management
+  flutter_bloc: ^9.1.1
+  provider: ^6.1.0
+
+  # Storage & Persistence
+  shared_preferences: ^2.5.5
+  flutter_secure_storage: ^10.0.0
+
+  # Security & Cryptography
+  crypto: ^3.0.7
+
+  # Platform Utilities
+  jailbreak_root_detection: ^1.2.0+1
+  root_jailbreak_sniffer: ^1.1.4
+
+  # Code Generation (required for preferences builder in lib/build.dart)
+  meta: '>=1.17.0 <2.0.0'
+  source_gen: ^4.2.2
+  build: ^4.0.6
+  analyzer: '>=8.1.1 <14.0.0'
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.11.1
