@@ -120,6 +120,8 @@ app.*.symbols
 # ----------------------------------------
 # Special project files
 # ----------------------------------------
+**/env.g.dart
+**/fastlane/.env
 app_localizations_*
 devtools_options.yaml
 devtools_options.yml

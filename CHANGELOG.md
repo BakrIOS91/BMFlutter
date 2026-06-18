@@ -1,3 +1,11 @@
+## 0.1.6
+
+- Replaced the minimal example app with a full production app (`flutter_example`) migrated from a real project.
+- Example uses `bm_flutter: ^0.1.5` and `bm_flutter_networking: ^0.1.10` as direct pub.dev dependencies instead of a git reference.
+- All imports migrated from the legacy `ld_flutter` package to the split `bm_flutter` / `bm_flutter_networking` packages.
+- Added `WithViewState.failHandler` — a static method on `WithViewState` that maps `APIError` to the correct `ViewState` error variant (`NoNetwork`, `Unauthorized`, `ServerError`, `UnexpectedError`).
+- Updated README with real-world usage examples for `ViewState` (BLoC + Freezed integration, `WithViewState` widget), `FontHelper` / `FontRegistry` (startup registration, `AppFontWeight` enum, `AppTextStyles` wrapper), and `DeviceHelper` (`scaleValue` context extension, scaling sizes / spacing / radii).
+
 ## 0.1.5
 
 - Fixed WASM compatibility: moved builder implementation from `lib/build.dart` to `lib/src/builder.dart` so pana no longer flags `analyzer`/`source_gen` (build-time-only deps) as WASM incompatible for the runtime library.
