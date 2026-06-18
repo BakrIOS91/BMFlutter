@@ -2,9 +2,7 @@
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_example/core/env/env.dart';
-import 'package:flutter_example/core/firebase_services/notification_service_manager.dart';
 import 'package:flutter_example/core/preferences/app_preferences.dart';
 import 'package:flutter_example/services/app_targets.dart';
 import 'package:flutter_example/services/client/common_client.dart';
@@ -21,24 +19,14 @@ part 'splash_state.dart';
 
 @injectable
 class SplashBloc extends Bloc<SplashEvent, SplashState> {
-  late final AppLifecycleListener listener;
   late AppPreferences pref;
-  late NotificationService notificationService;
   late CommonClient commonClient;
 
   SplashBloc({
     required this.pref,
-    required this.notificationService,
     required this.commonClient,
   }) : super(SplashState.initial()) {
     on<SplashEvent>(_onEvent);
-    listener = AppLifecycleListener(
-      onResume: () {
-        if (!isClosed) {
-          add(const SplashEvent.requestNotification());
-        }
-      },
-    );
   }
 
   Future<void> _onEvent(
@@ -47,17 +35,7 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
   ) async {
     event.map(
       started: (_) async {
-        add(const SplashEvent.requestNotification());
         add(const SplashEvent.fetchLookups());
-      },
-      requestNotification: (_) async {
-        await Future.delayed(const Duration(milliseconds: 50));
-        if (pref.notificationGranted) {
-          await notificationService.checkNotificationStatus();
-          await notificationService.setupTokenHandling();
-        } else {
-          await notificationService.init();
-        }
       },
       checkJailBreak: (event) async {
         final SecurityCheckResult result =
@@ -112,9 +90,4 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
     );
   }
 
-  @override
-  Future<void> close() {
-    listener.dispose();
-    return super.close();
-  }
 }

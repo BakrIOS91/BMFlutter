@@ -1,5 +1,4 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:flutter_example/core/firebase_services/notification_service_manager.dart';
 import 'package:flutter_example/features/splash/bloc/splash_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -14,8 +13,6 @@ class MockAppPreferences extends Mock implements AppPreferences {}
 
 class MockAppRouter extends Mock implements AppRouter {}
 
-class MockNotificationService extends Mock implements NotificationService {}
-
 class MockCommonClient extends Mock implements CommonClient {}
 
 class MockSecurityCheckResult extends Mock implements SecurityCheckResult {}
@@ -29,7 +26,6 @@ void main() {
 
   late MockAppPreferences mockPrefs;
   late MockAppRouter mockRouter;
-  late MockNotificationService mockNotificationService;
   late MockSecurityCheckResult mockSecureResult;
   late MockSecurityCheckResult mockInsecureResult;
   late MockCommonClient mockCommonClient;
@@ -44,22 +40,13 @@ void main() {
   setUp(() {
     mockPrefs = MockAppPreferences();
     mockRouter = MockAppRouter();
-    mockNotificationService = MockNotificationService();
     mockSecureResult = MockSecurityCheckResult();
     mockInsecureResult = MockSecurityCheckResult();
     mockCommonClient = MockCommonClient();
 
     getIt.registerSingleton<AppPreferences>(mockPrefs);
     getIt.registerSingleton<AppRouter>(mockRouter);
-    getIt.registerSingleton<NotificationService>(mockNotificationService);
 
-    when(() => mockNotificationService.checkNotificationStatus())
-        .thenAnswer((_) async => true);
-    when(() => mockNotificationService.setupTokenHandling())
-        .thenAnswer((_) async {});
-    when(() => mockNotificationService.init()).thenAnswer((_) async {});
-
-    when(() => mockPrefs.notificationGranted).thenReturn(true);
     when(() => mockPrefs.isFreshInstalled).thenReturn(false);
     when(() => mockPrefs.loggedIn).thenReturn(false);
     when(() => mockRouter.replace(any())).thenAnswer((_) async => null);
@@ -78,9 +65,6 @@ void main() {
     if (getIt.isRegistered<AppRouter>()) {
       getIt.unregister<AppRouter>();
     }
-    if (getIt.isRegistered<NotificationService>()) {
-      getIt.unregister<NotificationService>();
-    }
   });
 
   group('SplashBloc', () {
@@ -91,7 +75,6 @@ void main() {
           when(() => mockPrefs.isFreshInstalled).thenReturn(true);
           return SplashBloc(
             pref: mockPrefs,
-            notificationService: mockNotificationService,
             commonClient: mockCommonClient,
           );
         },
@@ -112,7 +95,6 @@ void main() {
           when(() => mockPrefs.isFreshInstalled).thenReturn(false);
           return SplashBloc(
             pref: mockPrefs,
-            notificationService: mockNotificationService,
             commonClient: mockCommonClient,
           );
         },
@@ -133,7 +115,6 @@ void main() {
         'emits jailBroken state when device is not secure',
         build: () => SplashBloc(
           pref: mockPrefs,
-          notificationService: mockNotificationService,
           commonClient: mockCommonClient,
         ),
         act: (bloc) =>
@@ -152,7 +133,6 @@ void main() {
           when(() => mockPrefs.isFreshInstalled).thenReturn(false);
           return SplashBloc(
             pref: mockPrefs,
-            notificationService: mockNotificationService,
             commonClient: mockCommonClient,
           );
         },
@@ -173,7 +153,6 @@ void main() {
           when(() => mockInsecureResult.reason).thenReturn('Debugging enabled');
           return SplashBloc(
             pref: mockPrefs,
-            notificationService: mockNotificationService,
             commonClient: mockCommonClient,
           );
         },
@@ -191,7 +170,6 @@ void main() {
           when(() => mockInsecureResult.reason).thenReturn('Emulator detected');
           return SplashBloc(
             pref: mockPrefs,
-            notificationService: mockNotificationService,
             commonClient: mockCommonClient,
           );
         },
@@ -211,7 +189,6 @@ void main() {
           when(() => mockPrefs.isFreshInstalled).thenReturn(false);
           return SplashBloc(
             pref: mockPrefs,
-            notificationService: mockNotificationService,
             commonClient: mockCommonClient,
           );
         },

@@ -3,7 +3,6 @@ part of 'splash_bloc.dart';
 @freezed
 class SplashEvent with _$SplashEvent {
   const factory SplashEvent.started() = _Started;
-  const factory SplashEvent.requestNotification() = _RequestNotification;
   const factory SplashEvent.checkJailBreak() = _CheckJailBreak;
   const factory SplashEvent.jailbreakResponse(SecurityCheckResult result) =
       _JailbreakResponse;
