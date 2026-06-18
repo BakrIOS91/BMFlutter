@@ -43,7 +43,6 @@ import '../../services/models/hotels/hotel_model.dart' as _i499;
 import '../../services/models/hotels/hotel_requests.dart' as _i9;
 import '../../utilities/constants/image_constants.dart' as _i207;
 import '../../utilities/l10n/app_language_manager.dart' as _i104;
-import '../firebase_services/analytics_service.dart' as _i540;
 import '../location_services/location_manager.dart' as _i791;
 import '../preferences/app_preferences.dart' as _i597;
 import '../router/app_router.dart' as _i81;
@@ -71,7 +70,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.singleton<_i81.AppRouter>(() => _i81.AppRouter());
     gh.singleton<_i332.ThemeFactory>(() => _i332.ThemeFactory());
     gh.singleton<_i104.AppLanguageManager>(() => _i104.AppLanguageManager());
-    gh.lazySingleton<_i540.AnalyticsService>(() => _i540.AnalyticsService());
     gh.lazySingleton<_i350.HiveStorageClient>(() => _i350.HiveStorageClient());
     gh.lazySingleton<_i125.AuthClient>(() => _i125.AuthClient());
     gh.lazySingleton<_i1048.HotelClient>(() => _i1048.HotelClient());
@@ -109,7 +107,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i475.LoginBloc>(() => _i475.LoginBloc(
           gh<_i597.AppPreferences>(),
           gh<_i125.AuthClient>(),
-          gh<_i540.AnalyticsService>(),
         ));
     gh.factory<_i257.MainAppBloc>(
         () => _i257.MainAppBloc(gh<_i597.AppPreferences>()));

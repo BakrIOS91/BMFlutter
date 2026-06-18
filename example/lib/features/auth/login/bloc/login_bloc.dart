@@ -1,5 +1,4 @@
 import 'package:bloc/bloc.dart';
-import 'package:flutter_example/core/firebase_services/analytics_service.dart';
 import 'package:flutter_example/core/preferences/app_preferences.dart';
 import 'package:flutter_example/services/client/auth_client.dart';
 import 'package:flutter_example/services/models/auth/login_model.dart';
@@ -21,11 +20,9 @@ part 'login_state.dart';
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final AppPreferences _pref;
   final AuthClient _authClient;
-  final AnalyticsService _analytics;
   LoginBloc(
     this._pref,
     this._authClient,
-    this._analytics,
   ) : super(LoginState.initial()) {
     on<LoginEvent>(_onEvent);
   }
@@ -127,7 +124,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
               viewState: ViewState.loaded,
               navigation: LoginNavigation.tab,
             ));
-            _analytics.loginEvent(userName: response.fullName ?? "");
           } else {
             emit(state.copyWith(viewState: ViewState.unexpectedError));
           }

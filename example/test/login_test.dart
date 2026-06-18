@@ -1,5 +1,4 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:flutter_example/core/firebase_services/analytics_service.dart';
 import 'package:flutter_example/features/auth/login/bloc/login_bloc.dart';
 import 'package:flutter_example/services/models/auth/auth_requests.dart';
 import 'package:flutter_example/services/models/auth/login_model.dart';
@@ -18,8 +17,6 @@ import 'package:flutter_example/utilities/constants/app_enums.dart';
 
 class MockAppPreferences extends Mock implements AppPreferences {}
 
-class MockAnalyticsService extends Mock implements AnalyticsService {}
-
 class MockAuthClient extends Mock implements AuthClient {}
 
 class MockAppRouter extends Mock implements AppRouter {}
@@ -30,7 +27,6 @@ void main() {
   late MockAppPreferences mockPrefs;
   late MockAuthClient mockAuth;
   late MockAppRouter mockRouter;
-  late MockAnalyticsService mockAnalyticsService;
 
   setUpAll(() {
     mockPrefs = MockAppPreferences();
@@ -43,7 +39,6 @@ void main() {
     mockPrefs = MockAppPreferences();
     mockAuth = MockAuthClient();
     mockRouter = MockAppRouter();
-    mockAnalyticsService = MockAnalyticsService();
 
     getIt.registerSingleton<AppPreferences>(mockPrefs);
     getIt.registerSingleton<AuthClient>(mockAuth);
@@ -56,8 +51,6 @@ void main() {
     when(() => mockAuth.getProfile()).thenAnswer(
         (_) async => Success<Profile?, APIError>(Profile(fullName: 'User')));
     when(() => mockRouter.replace(any())).thenAnswer((_) async => null);
-    when(() => mockAnalyticsService.loginEvent(userName: any(named: 'userName')))
-        .thenAnswer((_) async => {});
   });
 
   tearDown(() {
@@ -70,7 +63,7 @@ void main() {
         'sets empty username and password when no credentials in prefs',
         build: () {
           when(() => mockPrefs.loginCred).thenReturn(null);
-          return LoginBloc(mockPrefs, mockAuth, mockAnalyticsService);
+          return LoginBloc(mockPrefs, mockAuth);
         },
         act: (bloc) => bloc.add(const LoginEvent.started()),
         expect: () => [
@@ -83,7 +76,7 @@ void main() {
         build: () {
           when(() => mockPrefs.loginCred).thenReturn(
               LoginRequest(email: 'user@example.com', password: 'pass'));
-          return LoginBloc(mockPrefs, mockAuth, mockAnalyticsService);
+          return LoginBloc(mockPrefs, mockAuth);
         },
         act: (bloc) => bloc.add(const LoginEvent.started()),
         expect: () => [
@@ -96,7 +89,7 @@ void main() {
     group('Input Changes', () {
       blocTest<LoginBloc, LoginState>(
         'usernameChanged updates username and clears error',
-        build: () => LoginBloc(mockPrefs, mockAuth, mockAnalyticsService),
+        build: () => LoginBloc(mockPrefs, mockAuth),
         seed: () =>
             LoginState.initial().copyWith(emailErrorType: EmailErrorType.empty),
         act: (bloc) => bloc.add(const LoginEvent.usernameChanged('newUser')),
@@ -108,7 +101,7 @@ void main() {
 
       blocTest<LoginBloc, LoginState>(
         'passwordChanged updates password and clears error',
-        build: () => LoginBloc(mockPrefs, mockAuth, mockAnalyticsService),
+        build: () => LoginBloc(mockPrefs, mockAuth),
         seed: () => LoginState.initial().copyWith(passwordError: true),
         act: (bloc) => bloc.add(const LoginEvent.passwordChanged('newPass')),
         expect: () => [
@@ -119,7 +112,7 @@ void main() {
 
       blocTest<LoginBloc, LoginState>(
         'passwordVisibleChanged toggles visibility',
-        build: () => LoginBloc(mockPrefs, mockAuth, mockAnalyticsService),
+        build: () => LoginBloc(mockPrefs, mockAuth),
         act: (bloc) => bloc.add(const LoginEvent.passwordVisibleChanged(true)),
         expect: () => [
           LoginState.initial().copyWith(passwordVisible: true),
@@ -130,7 +123,7 @@ void main() {
     group('Validation (didPressLogin)', () {
       blocTest<LoginBloc, LoginState>(
         'emits errors if both username and password empty',
-        build: () => LoginBloc(mockPrefs, mockAuth, mockAnalyticsService),
+        build: () => LoginBloc(mockPrefs, mockAuth),
         act: (bloc) => bloc.add(const LoginEvent.didPressLogin()),
         expect: () => [
           LoginState.initial().copyWith(
@@ -142,7 +135,7 @@ void main() {
 
       blocTest<LoginBloc, LoginState>(
         'emits error if only username is empty',
-        build: () => LoginBloc(mockPrefs, mockAuth, mockAnalyticsService),
+        build: () => LoginBloc(mockPrefs, mockAuth),
         seed: () => LoginState.initial().copyWith(password: 'somePass'),
         act: (bloc) => bloc.add(const LoginEvent.didPressLogin()),
         expect: () => [
@@ -155,7 +148,7 @@ void main() {
 
       blocTest<LoginBloc, LoginState>(
         'emits error if email format is invalid',
-        build: () => LoginBloc(mockPrefs, mockAuth, mockAnalyticsService),
+        build: () => LoginBloc(mockPrefs, mockAuth),
         seed: () => LoginState.initial()
             .copyWith(username: "invalid-email", password: "somePassword"),
         act: (bloc) => bloc.add(const LoginEvent.didPressLogin()),
@@ -170,7 +163,7 @@ void main() {
 
       blocTest<LoginBloc, LoginState>(
         'emits error if only password is empty',
-        build: () => LoginBloc(mockPrefs, mockAuth, mockAnalyticsService),
+        build: () => LoginBloc(mockPrefs, mockAuth),
         seed: () =>
             LoginState.initial().copyWith(username: 'someUser@example.com'),
         act: (bloc) => bloc.add(const LoginEvent.didPressLogin()),
@@ -184,7 +177,7 @@ void main() {
     group('Login API Interaction', () {
       blocTest<LoginBloc, LoginState>(
         'calls AuthClient and updates state on success',
-        build: () => LoginBloc(mockPrefs, mockAuth, mockAnalyticsService),
+        build: () => LoginBloc(mockPrefs, mockAuth),
         seed: () => LoginState.initial()
             .copyWith(username: 'user@example.com', password: 'pass'),
         act: (bloc) => bloc.add(const LoginEvent.didPressLogin()),
@@ -221,7 +214,7 @@ void main() {
               const APIError(APIErrorType.httpError),
             ),
           );
-          return LoginBloc(mockPrefs, mockAuth, mockAnalyticsService);
+          return LoginBloc(mockPrefs, mockAuth);
         },
         seed: () => LoginState.initial()
             .copyWith(username: 'user@example.com', password: 'pass'),
@@ -247,7 +240,7 @@ void main() {
         build: () {
           when(() => mockAuth.login(any()))
               .thenAnswer((_) async => Success<Login?, APIError>(null));
-          return LoginBloc(mockPrefs, mockAuth, mockAnalyticsService);
+          return LoginBloc(mockPrefs, mockAuth);
         },
         seed: () => LoginState.initial()
             .copyWith(username: 'user@example.com', password: 'pass'),
@@ -271,7 +264,7 @@ void main() {
 
       blocTest<LoginBloc, LoginState>(
         'emits navigateToRegister when didPressSignUp is added',
-        build: () => LoginBloc(mockPrefs, mockAuth, mockAnalyticsService),
+        build: () => LoginBloc(mockPrefs, mockAuth),
         act: (bloc) => bloc.add(const LoginEvent.didPressSignUp()),
         expect: () => [
           LoginState.initial().copyWith(navigation: LoginNavigation.register),
@@ -280,7 +273,7 @@ void main() {
 
       blocTest<LoginBloc, LoginState>(
         'emits navigateToTab when didPressOnContinueAsGuest is added',
-        build: () => LoginBloc(mockPrefs, mockAuth, mockAnalyticsService),
+        build: () => LoginBloc(mockPrefs, mockAuth),
         act: (bloc) => bloc.add(const LoginEvent.didPressOnContinueAsGuest()),
         expect: () => [
           LoginState.initial().copyWith(navigation: LoginNavigation.tab),

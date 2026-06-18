@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_example/core/dependency_injector/dependency_injector.dart';
-import 'package:flutter_example/core/firebase_services/firebase_initializer.dart';
-import 'package:flutter_example/core/firebase_services/firebase_options.dart';
 import 'package:flutter_example/core/preferences/app_preferences.dart';
 import 'package:flutter_example/core/router/app_router.dart';
 import 'package:flutter_example/core/theme/theme_factory.dart';
@@ -23,9 +21,9 @@ void main() async {
   FontRegistry.registerFont(FontKey.primary, 'Jost');
   DeviceRegistry.registerReferenceWidth(375);
   APIErrorResponseRegistry.register(ResponseErrorMapper());
-  await AppBootstrapper.run(
-    firebaseOptions: DefaultFirebaseOptions.currentPlatform,
-    app: MainAppView(
+
+  runApp(
+    MainAppView(
       lang: getIt<AppLanguageManager>(),
       router: getIt<AppRouter>(),
       pref: getIt<AppPreferences>(),
