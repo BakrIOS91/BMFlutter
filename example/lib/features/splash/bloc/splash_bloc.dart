@@ -2,7 +2,6 @@
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
-import 'package:flutter_example/core/env/env.dart';
 import 'package:flutter_example/core/preferences/app_preferences.dart';
 import 'package:flutter_example/services/app_targets.dart';
 import 'package:flutter_example/services/client/common_client.dart';
@@ -42,7 +41,7 @@ class SplashBloc extends Bloc<SplashEvent, SplashState> {
             await DeviceSecurityHelper.checkDeviceSecurity(
           checkDebugging: appEnv == AppEnvironment.production ? true : false,
           checkEmulator: appEnv == AppEnvironment.production ? true : false,
-          bundleId: Env.iosNotificationBundleId,
+          bundleId: 'com.linkdev.iOSFullFlutterApp',
         );
 
         add(SplashEvent.jailbreakResponse(result));

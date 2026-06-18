@@ -259,7 +259,7 @@ class _WithViewStateState extends State<WithViewState> {
         );
 
       case ServerError(errorModel: final errorModel):
-        final serverMessage = (errorModel as ResponseError?)?.msg;
+        final serverMessage = _serverMessage(errorModel);
         return AppErrorView(
           image: Image.asset(
             context.imageConstants.errorServer,
@@ -274,7 +274,7 @@ class _WithViewStateState extends State<WithViewState> {
         );
 
       case SearchError(errorModel: final errorModel):
-        final serverMessage = (errorModel as ResponseError?)?.msg;
+        final serverMessage = _serverMessage(errorModel);
         return AppErrorView(
           image: Image.asset(
             context.imageConstants.errorUnExpected,
@@ -289,7 +289,7 @@ class _WithViewStateState extends State<WithViewState> {
         );
 
       case UnexpectedError(errorModel: final errorModel):
-        final serverMessage = (errorModel as ResponseError?)?.msg;
+        final serverMessage = _serverMessage(errorModel);
         return AppErrorView(
           image: Image.asset(
             context.imageConstants.errorUnExpected,
@@ -304,7 +304,7 @@ class _WithViewStateState extends State<WithViewState> {
         );
 
       case Unauthorized(errorModel: final errorModel):
-        final serverMessage = (errorModel as ResponseError?)?.msg;
+        final serverMessage = _serverMessage(errorModel);
         return AppErrorView(
           image: Image.asset(
             context.imageConstants.errorUnExpected,
@@ -321,7 +321,7 @@ class _WithViewStateState extends State<WithViewState> {
         );
 
       case ForceUpdateError(errorModel: final errorModel):
-        final serverMessage = (errorModel as ResponseError?)?.msg;
+        final serverMessage = _serverMessage(errorModel);
         return AppErrorView(
           image: Image.asset(
             context.imageConstants.errorUpdate,
@@ -352,6 +352,9 @@ class _WithViewStateState extends State<WithViewState> {
         return null;
     }
   }
+
+  String? _serverMessage(dynamic raw) =>
+      (raw as APIError?)?.errorModelAs<ResponseError>()?.msg;
 
   Widget _buildLoaderOverlay(
     BuildContext context, {

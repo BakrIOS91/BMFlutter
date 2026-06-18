@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter_example/core/env/env.dart';
 import 'package:flutter_example/core/preferences/app_preferences.dart';
 import 'package:flutter_example/services/client/auth_client.dart';
 import 'package:flutter_example/services/models/auth/login_model.dart';
@@ -34,8 +35,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     event.when(started: () async {
       emit(
         state.copyWith(
-          username: _pref.loginCred?.email ?? "",
-          password: _pref.loginCred?.password ?? "",
+          username: _pref.loginCred?.email ?? Env.testEmail,
+          password: _pref.loginCred?.password ?? Env.testPassword,
         ),
       );
     }, didPressLogin: () async {

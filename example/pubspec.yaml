@@ -27,7 +27,7 @@ dependencies:
   injectable: 2.7.1+4
   hive_flutter: ^1.1.0
   bm_flutter: ^0.1.5
-  bm_flutter_networking: ^0.1.10
+  bm_flutter_networking: ^0.1.11
   flutter_svg: ^2.2.4
   cached_network_image: ^3.4.1
   shimmer: ^3.0.0

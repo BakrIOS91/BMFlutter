@@ -22,29 +22,10 @@ abstract class Env {
   @EnviedField(varName: 'API_RPC_PATH')
   static final String apiRPCPath = _Env.apiRPCPath;
 
-  @EnviedField(varName: 'NOTIFICATION_PROJECT_ID')
-  static final String notificationProjectId = _Env.notificationProjectId;
+  @EnviedField(varName: 'TEST_EMAIL')
+  static final String testEmail = _Env.testEmail;
 
-  @EnviedField(varName: 'NOTIFICATION_STORAGE_BUCKET')
-  static final String notificationStorageBucket =
-      _Env.notificationStorageBucket;
+  @EnviedField(varName: 'TEST_PASSWORD')
+  static final String testPassword = _Env.testPassword;
 
-  @EnviedField(varName: 'NOTIFICATION_SENDER_ID')
-  static final String notificationSenderId = _Env.notificationSenderId;
-
-  @EnviedField(varName: 'ANDROID_NOTIFICATION_API_KEY')
-  static final String androidNotificationApiKey =
-      _Env.androidNotificationApiKey;
-
-  @EnviedField(varName: 'ANDROID_NOTIFICATION_APP_ID')
-  static final String androidNotificationAppId = _Env.androidNotificationAppId;
-
-  @EnviedField(varName: 'IOS_NOTIFICATION_API_KEY')
-  static final String iosNotificationApiKey = _Env.iosNotificationApiKey;
-
-  @EnviedField(varName: 'IOS_NOTIFICATION_APP_ID')
-  static final String iosNotificationAppId = _Env.iosNotificationAppId;
-
-  @EnviedField(varName: 'IOS_NOTIFICATION_BUNDLE_ID')
-  static final String iosNotificationBundleId = _Env.iosNotificationBundleId;
 }

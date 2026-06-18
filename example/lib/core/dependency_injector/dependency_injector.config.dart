@@ -83,6 +83,10 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i597.AppPreferences>(),
           gh<_i125.AuthClient>(),
         ));
+    gh.factory<_i475.LoginBloc>(() => _i475.LoginBloc(
+          gh<_i597.AppPreferences>(),
+          gh<_i125.AuthClient>(),
+        ));
     gh.factory<_i38.RegisterBloc>(() => _i38.RegisterBloc(
           gh<_i597.AppPreferences>(),
           gh<_i125.AuthClient>(),
@@ -104,10 +108,6 @@ extension GetItInjectableX on _i174.GetIt {
       _,
     ) =>
         _i981.FacilitiesListBloc(facilities));
-    gh.factory<_i475.LoginBloc>(() => _i475.LoginBloc(
-          gh<_i597.AppPreferences>(),
-          gh<_i125.AuthClient>(),
-        ));
     gh.factory<_i257.MainAppBloc>(
         () => _i257.MainAppBloc(gh<_i597.AppPreferences>()));
     gh.factory<_i327.OnboardingBloc>(

@@ -1,3 +1,12 @@
+## 0.1.7
+
+- Replaced minimal example with full production app (Firebase-free): removed `firebase_core`, `firebase_analytics`, `firebase_crashlytics`, `firebase_messaging`, and `flutter_local_notifications`; uses plain `runApp()`.
+- Added `.vscode/launch.json` with Debug and Release configurations.
+- Test credentials (`TEST_EMAIL` / `TEST_PASSWORD`) loaded via `envied` from `.env` — pre-fill the login form in debug builds.
+- Fixed `WithViewState._buildErrorView` cast: uses `APIError.errorModelAs<ResponseError>()` (new in `bm_flutter_networking` 0.1.11) via a private `_serverMessage()` helper — eliminates the double-cast pattern.
+- Cleaned up `env.dart` / `.env`: removed stale Firebase notification fields.
+- iOS minimum deployment target bumped to 15.0.
+
 ## 0.1.6
 
 - Replaced the minimal example app with a full production app (`flutter_example`) migrated from a real project.
