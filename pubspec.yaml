@@ -1,6 +1,6 @@
 name: bm_flutter
 description: "A Flutter toolkit providing annotation-driven preferences code generation, device security utilities, and reusable UI components."
-version: 0.1.7
+version: 0.1.8
 homepage: "https://github.com/BakrIOS91/BMFlutter"
 
 platforms:
@@ -38,6 +38,9 @@ dependencies:
   source_gen: ^4.2.2
   build: ^4.0.6
   analyzer: '>=8.1.1 <14.0.0'
+
+  # Code Generation (required for the SVG precompile builder in lib/src/svg_vec_builder.dart)
+  vector_graphics_compiler: ^1.2.6
 
 dev_dependencies:
   flutter_test:

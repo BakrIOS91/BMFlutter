@@ -1,3 +1,7 @@
+## 0.1.8
+
+- Added `SvgVecBuilder` (`lib/src/svg_vec_builder.dart`) — a build_runner `Builder` that precompiles each `.svg` asset into a `<name>.svg.vec` `vector_graphics` binary, registered via build.yaml with `auto_apply: dependents` so it applies automatically to any app depending on this package. Rendering the `.svg.vec` output instead of the raw `.svg` skips `flutter_svg`'s runtime XML parsing/tessellation, eliminating jank/memory spikes when many SVG icons mount at once (e.g. list scrolling). Generated `.svg.vec` files are build artifacts and should not be committed.
+
 ## 0.1.7
 
 - Replaced minimal example with full production app (Firebase-free): removed `firebase_core`, `firebase_analytics`, `firebase_crashlytics`, `firebase_messaging`, and `flutter_local_notifications`; uses plain `runApp()`.

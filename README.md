@@ -18,6 +18,8 @@ BMFlutter is a Flutter package providing core utilities, UI components, and desi
 3. [Storage & Preferences](#3-storage--preferences)
 4. [Device & Security](#4-device--security)
 5. [Design & Typography](#5-design--typography)
+6. [Build-Time Asset Compilation](#6-build-time-asset-compilation)
+   - [SVG Precompilation](#svg-precompilation)
 
 ---
 
@@ -488,3 +490,39 @@ Text(
 ```
 
 Font sizes are automatically multiplied by `DeviceHelper.getScalingFactor` inside `FontHelper.style` — there is no need to call `context.scaleValue` on a font size passed to `FontHelper`.
+
+## 6. Build-Time Asset Compilation
+
+### SVG Precompilation
+
+`SvgVecBuilder` is a `build_runner` builder that compiles every `.svg` asset in your app into a `<name>.svg.vec` binary next to it — the same way `freezed`/`json_serializable` generate `.g.dart` next to their source. It's registered with `auto_apply: dependents`, so once your app depends on `bm_flutter` it applies automatically; no build.yaml changes needed on your end.
+
+**1. Run it** (one-shot, or `watch` to keep it running in the background as you edit assets):
+
+```bash
+dart run build_runner build --delete-conflicting-outputs
+# or, to regenerate continuously while developing:
+dart run build_runner watch --delete-conflicting-outputs
+```
+
+**2. Render the compiled output** instead of the raw `.svg` — this skips `flutter_svg`'s runtime XML parsing/tessellation, which is the source of visible jank/memory spikes when many icons mount at once (e.g. list scrolling):
+
+```dart
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:vector_graphics/vector_graphics.dart' show AssetBytesLoader;
+
+SvgPicture(
+  AssetBytesLoader('assets/icons/my_icon.svg.vec'),
+  width: 24,
+  height: 24,
+  colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+)
+```
+
+**3. Never commit the `.svg.vec` output** — it's a generated build artifact, regenerated on every `build_runner build`/`watch`. Add it to your app's `.gitignore`:
+
+```gitignore
+assets/**/*.svg.vec
+```
+
+Your app's `pubspec.yaml` needs `vector_graphics` as a direct dependency (for `AssetBytesLoader`) alongside `flutter_svg` — `bm_flutter` only brings in the build-time `vector_graphics_compiler`, not the runtime renderer.

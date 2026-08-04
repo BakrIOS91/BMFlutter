@@ -5,3 +5,9 @@ builders:
     build_extensions: {".dart": [".pref.g.dart"]}
     auto_apply: dependents
     build_to: source
+  svgVecBuilder:
+    import: "package:bm_flutter/src/svg_vec_builder.dart"
+    builder_factories: ["svgVecBuilder"]
+    build_extensions: {".svg": [".svg.vec"]}
+    auto_apply: dependents
+    build_to: source
