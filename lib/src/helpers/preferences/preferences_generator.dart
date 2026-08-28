@@ -213,8 +213,8 @@ class PreferencesGenerator extends GeneratorForAnnotation<GeneratePreferences> {
   /// Generates code to load disk values into the reactive ValueNotifiers.
   void _generateInit(ClassElement classElement, StringBuffer buffer) {
     buffer.writeln('  @override');
-    buffer.writeln('  void initGenerated() {');
-    buffer.writeln('    super.initGenerated();');
+    buffer.writeln('  Future<void> initGenerated() async {');
+    buffer.writeln('    await super.initGenerated();');
     for (final field in classElement.fields) {
       if (!field.isPrivate) continue;
 
@@ -268,39 +268,43 @@ class PreferencesGenerator extends GeneratorForAnnotation<GeneratePreferences> {
           buffer.writeln('    }');
         }
       } else {
-        // SECURE READS: These are always asynchronous.
-        // We load them via a .then() so the app can continue booting while
-        // the encryption engine performs its work.
-        buffer.writeln("    getSecureInternal('$key').then((jsonString) {");
+        // SECURE READS: These are always asynchronous — genuinely awaited
+        // here (not fired-and-forgotten via .then()) so this field's
+        // ValueNotifier is guaranteed populated before initGenerated(), and
+        // therefore init() and @preResolve, return. A .then() here means
+        // the rest of app startup — and any authorized request that
+        // happens to fire early — can run against this field's
+        // just-constructed default instead of its real persisted value.
+        final localVar = 'raw${notifierName[0].toUpperCase()}${notifierName.substring(1)}';
+        buffer.writeln("    final $localVar = await getSecureInternal('$key');");
         buffer.writeln(
-          '      if (jsonString != null && jsonString.isNotEmpty) {',
+          '    if ($localVar != null && $localVar.isNotEmpty) {',
         );
 
         final typeElement = field.type.element;
         if (field.type.isDartCoreBool) {
-          buffer.writeln('        $notifierName.value = jsonString == "true";');
+          buffer.writeln('      $notifierName.value = $localVar == "true";');
         } else if (field.type.isDartCoreInt) {
           buffer.writeln(
-            '        $notifierName.value = int.parse(jsonString);',
+            '      $notifierName.value = int.parse($localVar);',
           );
         } else if (field.type.isDartCoreDouble) {
           buffer.writeln(
-            '        $notifierName.value = double.parse(jsonString);',
+            '      $notifierName.value = double.parse($localVar);',
           );
         } else if (field.type.isDartCoreString) {
-          buffer.writeln('        $notifierName.value = jsonString;');
+          buffer.writeln('      $notifierName.value = $localVar;');
         } else if (_isEnum(typeElement)) {
-          buffer.writeln('        final index = int.parse(jsonString);');
+          buffer.writeln('      final index = int.parse($localVar);');
           buffer.writeln(
-            '        if (index < $type.values.length) { $notifierName.value = $type.values[index]; }',
+            '      if (index < $type.values.length) { $notifierName.value = $type.values[index]; }',
           );
         } else {
           buffer.writeln(
-            '        $notifierName.value = $type.fromJson(json.decode(jsonString)) as dynamic;',
+            '      $notifierName.value = $type.fromJson(json.decode($localVar)) as dynamic;',
           );
         }
-        buffer.writeln('      }');
-        buffer.writeln('    });');
+        buffer.writeln('    }');
       }
     }
     buffer.writeln('  }');

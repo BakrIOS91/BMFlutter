@@ -1,3 +1,7 @@
+## 0.1.9
+
+- Fixed a startup race in `BasePreferences`/the preferences generator: `@Secure` fields were loaded via a fire-and-forget `getSecureInternal(...).then(...)` inside `initGenerated()`, so `init()` (and therefore `@preResolve`/DI setup) could complete before a secure field's real persisted value had actually loaded — leaving it at its just-constructed default in the meantime. Any authorized request built in that window went out with an empty/default token, and a token-refresh handler reading the same not-yet-loaded field could mistake it for "no session" and log the user out without ever calling the network. `initGenerated()` is now `Future<void>` and every `@Secure` field is genuinely `await`ed before it returns; `init()` awaits `initGenerated()` in turn. Trades a small amount of extra cold-start latency for closing the race — every consumer needs `dart run build_runner build` after upgrading to regenerate `*.pref.g.dart` with the new `async` signature.
+
 ## 0.1.8
 
 - Added `SvgVecBuilder` (`lib/src/svg_vec_builder.dart`) — a build_runner `Builder` that precompiles each `.svg` asset into a `<name>.svg.vec` `vector_graphics` binary, registered via build.yaml with `auto_apply: dependents` so it applies automatically to any app depending on this package. Rendering the `.svg.vec` output instead of the raw `.svg` skips `flutter_svg`'s runtime XML parsing/tessellation, eliminating jank/memory spikes when many SVG icons mount at once (e.g. list scrolling). Generated `.svg.vec` files are build artifacts and should not be committed.

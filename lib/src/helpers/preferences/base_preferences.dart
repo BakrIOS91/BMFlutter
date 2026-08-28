@@ -45,16 +45,26 @@ abstract class BasePreferences {
   /// 2. Calls `initGenerated()` to load all stored values into memory.
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
-    initGenerated();
+    await initGenerated();
   }
 
   /// Hook for code-generated initialization logic.
   ///
   /// The generator overrides this to:
-  /// - Read every `@UserDefault` from disk and populate `ValueNotifier`s.
-  /// - Trigger `Future` reads for every `@Secure` field.
+  /// - Read every `@UserDefault` from disk and populate `ValueNotifier`s
+  ///   (synchronous, already done by the time this returns).
+  /// - Read every `@Secure` field from encrypted storage and populate its
+  ///   `ValueNotifier` — genuinely awaited here so `init()` (and therefore
+  ///   `@preResolve`, and therefore the rest of `main()`) never proceeds
+  ///   with a secure field still holding its just-constructed default.
+  ///   Awaiting is worth the extra cold-start latency: the alternative is a
+  ///   real race — an authorized request built before a token finishes
+  ///   loading from secure storage goes out with an empty
+  ///   `Authorization: Bearer ` header, 401s, and a refresh handler reading
+  ///   the same not-yet-loaded field treats that as "no session" and logs
+  ///   the user out without ever calling the network.
   @mustCallSuper
-  void initGenerated() {}
+  Future<void> initGenerated() async {}
 
   /// Hook for code-generated disposal logic.
   ///
