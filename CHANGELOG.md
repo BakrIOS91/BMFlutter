@@ -1,3 +1,7 @@
+## 0.1.10
+
+- Replaced `root_jailbreak_sniffer` with `bm_root_jailbreak_sniffer` (a fork that adds a Swift Package Manager manifest on iOS). It has no SwiftPM manifest upstream, so it forced CocoaPods and the `IOSSecuritySuite` pod into apps otherwise on SwiftPM. Detection is unchanged on both platforms, including the Android Magisk Hide checks; `DeviceSecurityHelper` only changes its import.
+
 ## 0.1.9
 
 - Fixed a startup race in `BasePreferences`/the preferences generator: `@Secure` fields were loaded via a fire-and-forget `getSecureInternal(...).then(...)` inside `initGenerated()`, so `init()` (and therefore `@preResolve`/DI setup) could complete before a secure field's real persisted value had actually loaded — leaving it at its just-constructed default in the meantime. Any authorized request built in that window went out with an empty/default token, and a token-refresh handler reading the same not-yet-loaded field could mistake it for "no session" and log the user out without ever calling the network. `initGenerated()` is now `Future<void>` and every `@Secure` field is genuinely `await`ed before it returns; `init()` awaits `initGenerated()` in turn. Trades a small amount of extra cold-start latency for closing the race — every consumer needs `dart run build_runner build` after upgrading to regenerate `*.pref.g.dart` with the new `async` signature.

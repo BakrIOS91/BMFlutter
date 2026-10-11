@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:jailbreak_root_detection/jailbreak_root_detection.dart';
-import 'package:root_jailbreak_sniffer/rjsniffer.dart';
+import 'package:bm_root_jailbreak_sniffer/rjsniffer.dart';
 
 /// Model representing the result of a device security check.
 ///
