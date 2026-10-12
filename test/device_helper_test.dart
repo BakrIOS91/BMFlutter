@@ -4,7 +4,8 @@ import 'package:bm_flutter/src/helpers/device_helper.dart';
 
 void main() {
   group('DeviceHelper.getScalingFactor', () {
-    testWidgets('returns 1.5 for tablet dimensions (shortestSide >= 600)', (WidgetTester tester) async {
+    testWidgets('returns 1.5 for tablet dimensions (shortestSide >= 600)',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: MediaQuery(
@@ -21,7 +22,8 @@ void main() {
       );
     });
 
-    testWidgets('returns clamped minimum 0.9 for narrow phone (393 < 440)', (WidgetTester tester) async {
+    testWidgets('returns clamped minimum 0.9 for narrow phone (393 < 440)',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: MediaQuery(
@@ -39,7 +41,8 @@ void main() {
       );
     });
 
-    testWidgets('returns 1.0 for exact reference width (440)', (WidgetTester tester) async {
+    testWidgets('returns 1.0 for exact reference width (440)',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: MediaQuery(
@@ -56,7 +59,8 @@ void main() {
       );
     });
 
-    testWidgets('returns clamped maximum 1.1 for wide phone', (WidgetTester tester) async {
+    testWidgets('returns clamped maximum 1.1 for wide phone',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: MediaQuery(
@@ -95,7 +99,8 @@ void main() {
       expect(DeviceRegistry.referenceWidth, 390.0);
     });
 
-    testWidgets('custom referenceWidth affects scaling calculation', (WidgetTester tester) async {
+    testWidgets('custom referenceWidth affects scaling calculation',
+        (WidgetTester tester) async {
       DeviceRegistry.registerReferenceWidth(390.0);
 
       await tester.pumpWidget(

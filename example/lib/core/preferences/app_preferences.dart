@@ -33,7 +33,6 @@ class AppPreferences extends BasePreferences with _$AppPreferences {
   @InApp()
   late final Lookup? _lookups = null;
 
-
   @override
   @UserDefault('kAppLanguage')
   late final String _currentLanguage = 'en';

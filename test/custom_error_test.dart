@@ -73,13 +73,16 @@ void main() {
     });
 
     test('equal when both buttonTitles are null', () {
-      final e1 = CustomError(errorImage: image, errorTitle: 'T1', errorMessage: 'M1');
-      final e2 = CustomError(errorImage: image, errorTitle: 'T2', errorMessage: 'M2');
+      final e1 =
+          CustomError(errorImage: image, errorTitle: 'T1', errorMessage: 'M1');
+      final e2 =
+          CustomError(errorImage: image, errorTitle: 'T2', errorMessage: 'M2');
       expect(e1, equals(e2));
     });
 
     test('not equal to non-CustomError', () {
-      final e = CustomError(errorImage: image, errorTitle: 'T', errorMessage: 'M');
+      final e =
+          CustomError(errorImage: image, errorTitle: 'T', errorMessage: 'M');
       expect(e.hashCode, isNot(equals('not a CustomError'.hashCode)));
       // operator== checks `other is CustomError`, so e != a String
       expect(e == e, true); // self equality

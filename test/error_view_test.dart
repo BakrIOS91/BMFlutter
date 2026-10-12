@@ -40,7 +40,8 @@ void main() {
       expect(find.text('Detailed message here'), findsOneWidget);
     });
 
-    testWidgets('retryButton is shown when all three params provided', (tester) async {
+    testWidgets('retryButton is shown when all three params provided',
+        (tester) async {
       bool tapped = false;
       await tester.pumpWidget(_wrap(ErrorView(
         title: 'Error',
@@ -91,7 +92,8 @@ void main() {
       expect(find.text('Should not show'), findsNothing);
     });
 
-    testWidgets('retryButton hidden when retryButton widget is null', (tester) async {
+    testWidgets('retryButton hidden when retryButton widget is null',
+        (tester) async {
       await tester.pumpWidget(_wrap(ErrorView(
         title: 'Title',
         message: 'Message',

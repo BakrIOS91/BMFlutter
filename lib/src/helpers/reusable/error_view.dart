@@ -32,8 +32,7 @@ class ErrorView extends StatelessWidget {
     final double scale = DeviceHelper.getScalingFactor(context);
     return Container(
       // Using Container instead of Scaffold for background support
-      decoration:
-          backgroundDecoration ??
+      decoration: backgroundDecoration ??
           BoxDecoration(
             color: backgroundColor ?? Colors.white, // Default background
           ),

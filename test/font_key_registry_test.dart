@@ -70,12 +70,14 @@ void main() {
     test('custom key round-trip', () {
       final key = FontKey.custom('customFont');
       FontRegistry.registerFont(key, 'CustomFamily');
-      expect(FontRegistry.getFont(FontKey.custom('customFont')), 'CustomFamily');
+      expect(
+          FontRegistry.getFont(FontKey.custom('customFont')), 'CustomFamily');
     });
 
     test('getFont throws for unregistered key', () {
       expect(
-        () => FontRegistry.getFont(FontKey.custom('definitely_not_registered_xyz')),
+        () => FontRegistry.getFont(
+            FontKey.custom('definitely_not_registered_xyz')),
         throwsException,
       );
     });

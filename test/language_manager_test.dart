@@ -86,7 +86,8 @@ void main() {
 
 class _CustomManager extends LanguageManager {
   @override
-  List<SupportedLocale> get supported => [SupportedLocale.enUs, SupportedLocale.arEG];
+  List<SupportedLocale> get supported =>
+      [SupportedLocale.enUs, SupportedLocale.arEG];
 
   @override
   SupportedLocale get fallback => SupportedLocale.arEG;

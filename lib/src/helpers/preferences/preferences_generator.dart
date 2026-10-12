@@ -129,8 +129,7 @@ class PreferencesGenerator extends GeneratorForAnnotation<GeneratePreferences> {
       if (userDefault == null && secure == null && inApp == null) continue;
 
       // Extract the storage key from the annotation.
-      final key =
-          userDefault?.read('key').stringValue ??
+      final key = userDefault?.read('key').stringValue ??
           secure?.read('key').stringValue;
 
       final name = field.name!;
@@ -220,8 +219,7 @@ class PreferencesGenerator extends GeneratorForAnnotation<GeneratePreferences> {
 
       final userDefault = _getAnnotation(field, 'UserDefault');
       final secure = _getAnnotation(field, 'Secure');
-      final key =
-          userDefault?.read('key').stringValue ??
+      final key = userDefault?.read('key').stringValue ??
           secure?.read('key').stringValue;
       if (key == null) continue;
 
@@ -275,8 +273,10 @@ class PreferencesGenerator extends GeneratorForAnnotation<GeneratePreferences> {
         // the rest of app startup — and any authorized request that
         // happens to fire early — can run against this field's
         // just-constructed default instead of its real persisted value.
-        final localVar = 'raw${notifierName[0].toUpperCase()}${notifierName.substring(1)}';
-        buffer.writeln("    final $localVar = await getSecureInternal('$key');");
+        final localVar =
+            'raw${notifierName[0].toUpperCase()}${notifierName.substring(1)}';
+        buffer
+            .writeln("    final $localVar = await getSecureInternal('$key');");
         buffer.writeln(
           '    if ($localVar != null && $localVar.isNotEmpty) {',
         );

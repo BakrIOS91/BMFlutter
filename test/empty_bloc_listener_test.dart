@@ -10,7 +10,8 @@ class _CounterCubit extends Cubit<int> {
 
 void main() {
   group('emptyBlocListener', () {
-    testWidgets('works inside MultiBlocListener without errors', (tester) async {
+    testWidgets('works inside MultiBlocListener without errors',
+        (tester) async {
       final cubit = _CounterCubit();
 
       await tester.pumpWidget(
@@ -28,7 +29,8 @@ void main() {
       expect(find.text('content'), findsOneWidget);
     });
 
-    testWidgets('listener never fires — listenWhen always returns false', (tester) async {
+    testWidgets('listener never fires — listenWhen always returns false',
+        (tester) async {
       final cubit = _CounterCubit();
       bool wasCalled = false;
 
@@ -50,7 +52,9 @@ void main() {
       expect(wasCalled, false);
     });
 
-    testWidgets('state changes do not cause errors when used in MultiBlocListener', (tester) async {
+    testWidgets(
+        'state changes do not cause errors when used in MultiBlocListener',
+        (tester) async {
       final cubit = _CounterCubit();
 
       await tester.pumpWidget(
@@ -74,7 +78,8 @@ void main() {
       expect(find.byType(MultiBlocListener), findsOneWidget);
     });
 
-    testWidgets('multiple emptyBlocListeners can coexist in MultiBlocListener', (tester) async {
+    testWidgets('multiple emptyBlocListeners can coexist in MultiBlocListener',
+        (tester) async {
       final cubit = _CounterCubit();
 
       await tester.pumpWidget(

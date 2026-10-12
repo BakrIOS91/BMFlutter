@@ -25,7 +25,7 @@ import 'package:provider/single_child_widget.dart';
 /// )
 /// ```
 PreferencesListener<B, S, T>
-preferencesListener<B extends StateStreamable<S>, S, T>({
+    preferencesListener<B extends StateStreamable<S>, S, T>({
   required ValueListenable<T> listenTo,
   required void Function(BuildContext context, T value) listener,
   bool Function(T previous, T current)? listenWhen,

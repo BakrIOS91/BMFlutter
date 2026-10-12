@@ -8,7 +8,8 @@ class _ConcretePrefs extends BasePreferences {}
 // Exposes the @protected secure methods for testing
 class _TestablePrefs extends BasePreferences {
   Future<String?> readSecure(String key) => getSecureInternal(key);
-  Future<void> writeSecure(String key, String? value) => setSecureInternal(key, value);
+  Future<void> writeSecure(String key, String? value) =>
+      setSecureInternal(key, value);
 }
 
 void main() {

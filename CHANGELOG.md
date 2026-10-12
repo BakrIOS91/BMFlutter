@@ -1,3 +1,9 @@
+## 0.1.11
+
+- Raised dependency constraints to allow the latest releases: `flutter_secure_storage ^11.2.0`, `source_gen ^4.3.0`, `analyzer <15.0.0`.
+- Applied `dart format` to `lib/` and `test/`.
+- Regenerated the example app's `app_preferences.pref.g.dart` (stale `void initGenerated()` signature).
+
 ## 0.1.10
 
 - Replaced `root_jailbreak_sniffer` with `bm_root_jailbreak_sniffer` (a fork that adds a Swift Package Manager manifest on iOS). It has no SwiftPM manifest upstream, so it forced CocoaPods and the `IOSSecuritySuite` pod into apps otherwise on SwiftPM. Detection is unchanged on both platforms, including the Android Magisk Hide checks; `DeviceSecurityHelper` only changes its import.

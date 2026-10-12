@@ -16,7 +16,8 @@ Widget _wrap(Widget child) {
 void main() {
   group('Position enum', () {
     test('has leading, center, trailing values', () {
-      expect(Position.values, containsAll([Position.leading, Position.center, Position.trailing]));
+      expect(Position.values,
+          containsAll([Position.leading, Position.center, Position.trailing]));
     });
   });
 
@@ -40,7 +41,8 @@ void main() {
           onPressed: () {},
         ),
       )));
-      final opacity = tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity));
+      final opacity =
+          tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity));
       expect(opacity.opacity, 1.0);
     });
 
@@ -53,7 +55,8 @@ void main() {
           isDisabled: true,
         ),
       )));
-      final opacity = tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity));
+      final opacity =
+          tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity));
       expect(opacity.opacity, 0.6);
     });
 
@@ -119,7 +122,8 @@ void main() {
           onPressed: () {},
         ),
       )));
-      final opacity = tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity));
+      final opacity =
+          tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity));
       expect(opacity.opacity, 1.0);
     });
 
@@ -132,7 +136,8 @@ void main() {
           isDisabled: true,
         ),
       )));
-      final opacity = tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity));
+      final opacity =
+          tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity));
       expect(opacity.opacity, 0.5);
     });
 
@@ -163,7 +168,8 @@ void main() {
       expect(find.byIcon(Icons.arrow_forward), findsOneWidget);
     });
 
-    testWidgets('renders with shadow when shadowBlurRadius > 0', (tester) async {
+    testWidgets('renders with shadow when shadowBlurRadius > 0',
+        (tester) async {
       await tester.pumpWidget(_wrap(Builder(
         builder: (context) => AppCupertinoButton.outlined(
           context: context,
@@ -178,7 +184,8 @@ void main() {
   });
 
   group('AppCupertinoButton — shadow and center-icon branches', () {
-    testWidgets('filled renders with shadow when shadowBlurRadius > 0', (tester) async {
+    testWidgets('filled renders with shadow when shadowBlurRadius > 0',
+        (tester) async {
       await tester.pumpWidget(_wrap(Builder(
         builder: (context) => AppCupertinoButton.filled(
           context: context,
@@ -191,7 +198,9 @@ void main() {
       expect(find.text('Shadowed'), findsOneWidget);
     });
 
-    testWidgets('icon at center position uses Stack layout (labelPosition=leading)', (tester) async {
+    testWidgets(
+        'icon at center position uses Stack layout (labelPosition=leading)',
+        (tester) async {
       await tester.pumpWidget(_wrap(Builder(
         builder: (context) => AppCupertinoButton.filled(
           context: context,
@@ -206,7 +215,8 @@ void main() {
       expect(find.byType(Stack), findsAtLeastNWidgets(1));
     });
 
-    testWidgets('icon at center position — labelPosition=center', (tester) async {
+    testWidgets('icon at center position — labelPosition=center',
+        (tester) async {
       await tester.pumpWidget(_wrap(Builder(
         builder: (context) => AppCupertinoButton.filled(
           context: context,
@@ -220,7 +230,8 @@ void main() {
       expect(find.byIcon(Icons.star), findsOneWidget);
     });
 
-    testWidgets('icon at center position — labelPosition=trailing', (tester) async {
+    testWidgets('icon at center position — labelPosition=trailing',
+        (tester) async {
       await tester.pumpWidget(_wrap(Builder(
         builder: (context) => AppCupertinoButton.filled(
           context: context,
@@ -246,7 +257,9 @@ void main() {
       expect(find.text('OK'), findsOneWidget);
     });
 
-    testWidgets('Row layout with leading icon (covers _mapPositionToAlignment leading)', (tester) async {
+    testWidgets(
+        'Row layout with leading icon (covers _mapPositionToAlignment leading)',
+        (tester) async {
       await tester.pumpWidget(_wrap(Builder(
         builder: (context) => AppCupertinoButton.filled(
           context: context,
@@ -260,7 +273,9 @@ void main() {
       expect(find.byIcon(Icons.add), findsOneWidget);
     });
 
-    testWidgets('Row layout with trailing label (covers _mapPositionToAlignment trailing)', (tester) async {
+    testWidgets(
+        'Row layout with trailing label (covers _mapPositionToAlignment trailing)',
+        (tester) async {
       await tester.pumpWidget(_wrap(Builder(
         builder: (context) => AppCupertinoButton.filled(
           context: context,

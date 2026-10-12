@@ -53,7 +53,8 @@ void main() {
       expect(received, ['changed']);
     });
 
-    testWidgets('calls listener multiple times for multiple changes', (tester) async {
+    testWidgets('calls listener multiple times for multiple changes',
+        (tester) async {
       final notifier = ValueNotifier<int>(0);
       final cubit = _FakeCubit();
       final received = <int>[];
@@ -81,7 +82,8 @@ void main() {
       expect(received, [1, 2, 3]);
     });
 
-    testWidgets('listenWhen=false suppresses all listener calls', (tester) async {
+    testWidgets('listenWhen=false suppresses all listener calls',
+        (tester) async {
       final notifier = ValueNotifier<String>('initial');
       final cubit = _FakeCubit();
       final received = <String>[];
@@ -132,7 +134,8 @@ void main() {
       expect(received, [2]);
     });
 
-    testWidgets('disposes listener on widget removal without crashing', (tester) async {
+    testWidgets('disposes listener on widget removal without crashing',
+        (tester) async {
       final notifier = ValueNotifier<String>('initial');
       final cubit = _FakeCubit();
       final received = <String>[];
@@ -179,7 +182,8 @@ void main() {
       expect(find.text('child content'), findsOneWidget);
     });
 
-    testWidgets('didUpdateWidget re-subscribes when listenTo changes', (tester) async {
+    testWidgets('didUpdateWidget re-subscribes when listenTo changes',
+        (tester) async {
       final notifier1 = ValueNotifier<String>('a');
       final notifier2 = ValueNotifier<String>('x');
       final cubit = _FakeCubit();
@@ -222,7 +226,8 @@ void main() {
       expect(received, ['new_change']);
     });
 
-    testWidgets('preferencesListener() function works inside MultiBlocListener', (tester) async {
+    testWidgets('preferencesListener() function works inside MultiBlocListener',
+        (tester) async {
       final notifier = ValueNotifier<int>(0);
       final cubit = _FakeCubit();
       final received = <int>[];

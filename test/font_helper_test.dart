@@ -40,7 +40,8 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Builder(builder: (context) {
-            result = FontHelper.style(context: context, fontKey: FontKey.secondary);
+            result =
+                FontHelper.style(context: context, fontKey: FontKey.secondary);
             return const SizedBox();
           }),
         ),
@@ -48,7 +49,8 @@ void main() {
       expect(result.fontFamily, 'Roboto');
     });
 
-    testWidgets('default size 14 at reference width (440) gives ~14', (tester) async {
+    testWidgets('default size 14 at reference width (440) gives ~14',
+        (tester) async {
       late TextStyle result;
       await tester.pumpWidget(
         MaterialApp(
@@ -64,7 +66,8 @@ void main() {
       expect(result.fontSize, closeTo(14.0, 0.1));
     });
 
-    testWidgets('size scales up for tablet (shortestSide >= 600)', (tester) async {
+    testWidgets('size scales up for tablet (shortestSide >= 600)',
+        (tester) async {
       late TextStyle result;
       await tester.pumpWidget(
         MaterialApp(
@@ -86,7 +89,8 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Builder(builder: (context) {
-            result = FontHelper.style(context: context, weight: const _BoldWeight());
+            result =
+                FontHelper.style(context: context, weight: const _BoldWeight());
             return const SizedBox();
           }),
         ),
@@ -99,7 +103,8 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Builder(builder: (context) {
-            result = FontHelper.style(context: context, weight: const _ThinWeight());
+            result =
+                FontHelper.style(context: context, weight: const _ThinWeight());
             return const SizedBox();
           }),
         ),

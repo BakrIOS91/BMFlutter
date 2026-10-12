@@ -55,7 +55,8 @@ class DeviceHelper {
 
     // Reference width (can adjust for different baselines)
     // This represents the baseline device width for scaling calculations
-    final referenceWidth = DeviceRegistry.referenceWidth; // like iPhone 16 Pro Max
+    final referenceWidth =
+        DeviceRegistry.referenceWidth; // like iPhone 16 Pro Max
 
     // Calculate raw scaling factor
     double scale = screenWidth / referenceWidth;
