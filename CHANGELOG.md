@@ -1,3 +1,7 @@
+## 0.2.1
+
+- Relaxed `source_gen` to `^4.2.2` so apps can also use `injectable_generator`, `auto_route_generator` and `bloc_test` in the same project. No code changes.
+
 ## 0.2.0
 
 TV and remote-control support. All changes are additive; existing apps keep working unchanged.
