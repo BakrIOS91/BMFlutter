@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+import 'secure_store.dart';
+
 import 'package:meta/meta.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -29,9 +31,10 @@ abstract class BasePreferences {
   /// Loaded asynchronously during `init()`.
   late final SharedPreferences _prefs;
 
-  /// The secure storage engine.
-  /// Operations on this instance are always `Future`-based and encrypted.
-  final _secureStorage = const FlutterSecureStorage();
+  /// The secure storage engine, taken from [PreferencesStorage.secureStore]
+  /// (`flutter_secure_storage` unless another [SecureStore] was registered).
+  /// Operations are always `Future`-based.
+  SecureStore get _secureStorage => PreferencesStorage.secureStore;
 
   /// --- LIFECYCLE MANAGEMENT ---
 
@@ -123,8 +126,7 @@ abstract class BasePreferences {
   /// **Why @protected?** This should only be called by the generated mixin.
   /// The public API for tokens should be the type-safe generated property.
   @protected
-  Future<String?> getSecureInternal(String key) =>
-      _secureStorage.read(key: key);
+  Future<String?> getSecureInternal(String key) => _secureStorage.read(key);
 
   /// Writes (or deletes if null) a value in the encrypted store.
   ///
@@ -134,9 +136,9 @@ abstract class BasePreferences {
   @protected
   Future<void> setSecureInternal(String key, String? value) {
     if (value == null) {
-      return _secureStorage.delete(key: key);
+      return _secureStorage.delete(key);
     } else {
-      return _secureStorage.write(key: key, value: value);
+      return _secureStorage.write(key, value);
     }
   }
 }

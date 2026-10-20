@@ -47,6 +47,12 @@ class DeviceHelper {
     // Check if the device is a tablet or iPad
     // A common threshold for tablets is a shortest side of 600 logical pixels
     final shortestSide = mediaQuery.size.shortestSide;
+
+    // TV mode (opt-in): scale a fixed-height design to the screen.
+    if (DeviceRegistry.isTvMode) {
+      return (shortestSide / DeviceRegistry.tvDesignHeight).clamp(0.5, 2.0);
+    }
+
     if (shortestSide >= 600) {
       return 1.5;
     }
@@ -90,4 +96,29 @@ class DeviceRegistry {
 
   /// Retrieves the registered reference width.
   static double get referenceWidth => _referenceWidth;
+
+  static bool _tvMode = false;
+  static double _tvDesignHeight = 1080.0;
+
+  /// Switches [DeviceHelper.getScalingFactor] to TV scaling: the factor becomes
+  /// the screen's shortest side divided by [designHeight] (default 1080), so a
+  /// layout drawn for a 1920x1080 screen looks the same on any TV resolution.
+  /// The result is clamped to 0.5 - 2.0. Off by default; call once at startup
+  /// when the app runs on a TV.
+  static void registerTvMode({double designHeight = 1080.0}) {
+    _tvMode = true;
+    _tvDesignHeight = designHeight;
+  }
+
+  /// Turns TV scaling off again (phones and tablets use the normal rules).
+  static void resetTvMode() {
+    _tvMode = false;
+    _tvDesignHeight = 1080.0;
+  }
+
+  /// Whether TV scaling is active.
+  static bool get isTvMode => _tvMode;
+
+  /// Design height used by TV scaling.
+  static double get tvDesignHeight => _tvDesignHeight;
 }

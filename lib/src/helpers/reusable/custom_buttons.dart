@@ -25,6 +25,9 @@ class AppCupertinoButton {
     double iconSize = 22,
     Position iconPosition = Position.leading,
     Position labelPosition = Position.center,
+    FocusNode? focusNode,
+    bool autofocus = false,
+    Color? focusColor,
   }) {
     final scale = DeviceHelper.getScalingFactor(context);
 
@@ -41,6 +44,9 @@ class AppCupertinoButton {
       padding: EdgeInsets.zero,
       borderRadius: BorderRadius.circular(12 * scale),
       color: Colors.transparent,
+      focusNode: focusNode,
+      autofocus: autofocus,
+      focusColor: focusColor,
       onPressed: isDisabled ? null : onPressed,
       child: AnimatedOpacity(
         duration: const Duration(milliseconds: 150),
@@ -102,6 +108,9 @@ class AppCupertinoButton {
     double iconSize = 22,
     Position iconPosition = Position.leading,
     Position labelPosition = Position.center,
+    FocusNode? focusNode,
+    bool autofocus = false,
+    Color? focusColor,
   }) {
     final scale = DeviceHelper.getScalingFactor(context);
 
@@ -122,6 +131,9 @@ class AppCupertinoButton {
       padding: EdgeInsets.zero,
       borderRadius: BorderRadius.circular(borderRadius * scale),
       color: Colors.transparent,
+      focusNode: focusNode,
+      autofocus: autofocus,
+      focusColor: focusColor,
       onPressed: isDisabled ? null : onPressed,
       child: AnimatedOpacity(
         duration: const Duration(milliseconds: 150),

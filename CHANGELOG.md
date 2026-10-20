@@ -1,3 +1,13 @@
+## 0.2.0
+
+TV and remote-control support. All changes are additive; existing apps keep working unchanged.
+
+- Added `WithViewState` to the package (it previously existed only in the example app). It has no router, localisation or networking dependency: customise it with `ViewStateTexts`, `errorBuilder` and `errorMessageResolver`, and set `autofocusRetry` so the main button of the default error view takes focus on a TV. Also exports `ErrorDisplayMode`.
+- Added `autofocusRetry` to `ErrorView` (moves focus into `retryButton` when the view appears). `ErrorView` is now a `StatefulWidget`.
+- Added `focusNode`, `autofocus` and (buttons only) `focusColor` to `AppCupertinoButton.filled`, `AppCupertinoButton.outlined` and `UnderlinedButton`.
+- Added opt-in TV scaling: `DeviceRegistry.registerTvMode({designHeight = 1080})`, `DeviceRegistry.resetTvMode()`, `DeviceRegistry.isTvMode`. In TV mode `DeviceHelper.getScalingFactor` returns the screen's shortest side divided by the design height (clamped to 0.5 - 2.0). Off by default.
+- Added a pluggable store for `@Secure` fields: `SecureStore`, `FlutterSecureStore` (default, unchanged behaviour), `MemorySecureStore` and `PreferencesStorage.registerSecureStore`. Register a store before `init()` on platforms where `flutter_secure_storage` is unavailable. The `flutter_secure_storage` and device-security dependencies are still declared by this package.
+
 ## 0.1.11
 
 - Raised dependency constraints to allow the latest releases: `flutter_secure_storage ^11.2.0`, `source_gen ^4.3.0`, `analyzer <15.0.0`.

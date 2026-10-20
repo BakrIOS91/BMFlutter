@@ -19,11 +19,19 @@ class UnderlinedButton extends StatelessWidget {
   /// Optional text style override
   final TextStyle? style;
 
+  /// Focus node, for remote or keyboard control.
+  final FocusNode? focusNode;
+
+  /// Takes focus when first built.
+  final bool autofocus;
+
   const UnderlinedButton({
     super.key,
     required this.title,
     required this.onPressed,
     this.style,
+    this.focusNode,
+    this.autofocus = false,
   });
 
   @override
@@ -37,6 +45,8 @@ class UnderlinedButton extends StatelessWidget {
     return CupertinoButton(
       // iOS-style button
       padding: EdgeInsets.zero,
+      focusNode: focusNode,
+      autofocus: autofocus,
       onPressed: onPressed,
       pressedOpacity: 0.3,
       minimumSize: Size(0, 0), // subtle fade when pressed

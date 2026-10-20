@@ -491,6 +491,43 @@ Text(
 
 Font sizes are automatically multiplied by `DeviceHelper.getScalingFactor` inside `FontHelper.style` — there is no need to call `context.scaleValue` on a font size passed to `FontHelper`.
 
+## 5b. TV and Remote Control
+
+**Scaling for TV.** Opt in once at startup; sizes then scale from a fixed 1920x1080 design.
+
+```dart
+if (isRunningOnTv) {
+  DeviceRegistry.registerTvMode(); // designHeight defaults to 1080
+}
+```
+
+**Focus on buttons and error views.**
+
+```dart
+AppCupertinoButton.filled(
+  context: context,
+  title: 'Play',
+  onPressed: play,
+  autofocus: true,
+  focusColor: Colors.white24,
+);
+
+WithViewState(
+  viewState: state.viewState,
+  retryAction: () => context.read<MyBloc>().add(const MyEvent.reload()),
+  autofocusRetry: true, // the Retry button gets focus automatically
+  child: content,
+);
+```
+
+`WithViewState` has default error views and English texts. Localise them with `texts: ViewStateTexts(...)`, replace any of them with `errorBuilder`, and show server messages with `errorMessageResolver: (model) => ...`.
+
+**Platforms without secure storage.**
+
+```dart
+PreferencesStorage.registerSecureStore(MemorySecureStore()); // before init()
+```
+
 ## 6. Build-Time Asset Compilation
 
 ### SVG Precompilation

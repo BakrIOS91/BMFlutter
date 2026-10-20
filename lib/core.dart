@@ -24,6 +24,7 @@ export 'src/helpers/preferences/annotations.dart';
 /// =======================
 
 export 'src/helpers/preferences/base_preferences.dart';
+export 'src/helpers/preferences/secure_store.dart';
 
 /// =======================
 /// UI COMPONENTS
@@ -33,4 +34,5 @@ export 'src/helpers/reusable/custom_buttons.dart';
 export 'src/helpers/reusable/empty_bloc_listener.dart';
 export 'src/helpers/reusable/error_view.dart';
 export 'src/helpers/reusable/preferences_listener.dart';
+export 'src/helpers/reusable/with_view_state.dart';
 export 'src/helpers/reusable/underlined_button.dart';
